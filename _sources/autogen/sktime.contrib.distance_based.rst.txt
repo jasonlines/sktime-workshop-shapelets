@@ -1,0 +1,16 @@
+sktime.contrib.distance\_based package
+======================================
+
+.. automodule:: sktime.contrib.distance_based
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.contrib.distance_based.elastic_ensemble
+   sktime.contrib.distance_based.ts_distance_measures
+

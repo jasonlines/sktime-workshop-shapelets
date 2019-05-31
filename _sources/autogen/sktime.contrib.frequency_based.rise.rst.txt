@@ -1,0 +1,7 @@
+sktime.contrib.frequency\_based.rise module
+===========================================
+
+.. automodule:: sktime.contrib.frequency_based.rise
+    :members:
+    :undoc-members:
+    :show-inheritance:

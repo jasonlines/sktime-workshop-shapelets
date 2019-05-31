@@ -1,0 +1,7 @@
+sktime.experiments.losses module
+================================
+
+.. automodule:: sktime.experiments.losses
+    :members:
+    :undoc-members:
+    :show-inheritance:

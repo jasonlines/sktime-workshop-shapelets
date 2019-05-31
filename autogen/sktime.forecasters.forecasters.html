@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.forecasters.forecasters module &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sktime.regressors package" href="sktime.regressors.html" />
+    <link rel="prev" title="sktime.forecasters.base module" href="sktime.forecasters.base.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sktime.html">sktime package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sktime.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sktime.classifiers.html">sktime.classifiers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.contrib.html">sktime.contrib package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.datasets.html">sktime.datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.distances.html">sktime.distances package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.experiments.html">sktime.experiments package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sktime.forecasters.html">sktime.forecasters package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sktime.forecasters.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.regressors.html">sktime.regressors package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.transformers.html">sktime.transformers package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sktime.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sktime.html">sktime package</a> &raquo;</li>
+        
+          <li><a href="sktime.forecasters.html">sktime.forecasters package</a> &raquo;</li>
+        
+      <li>sktime.forecasters.forecasters module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autogen/sktime.forecasters.forecasters.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sktime.forecasters.forecasters">
+<span id="sktime-forecasters-forecasters-module"></span><h1>sktime.forecasters.forecasters module<a class="headerlink" href="#module-sktime.forecasters.forecasters" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="sktime.forecasters.forecasters.ARIMAForecaster">
+<em class="property">class </em><code class="descclassname">sktime.forecasters.forecasters.</code><code class="descname">ARIMAForecaster</code><span class="sig-paren">(</span><em>order=(1</em>, <em>0</em>, <em>0)</em>, <em>seasonal_order=(0</em>, <em>0</em>, <em>0</em>, <em>0)</em>, <em>trend='n'</em>, <em>enforce_stationarity=True</em>, <em>enforce_invertibility=True</em>, <em>maxiter=1000</em>, <em>method='lbfgs'</em>, <em>check_input=True</em>, <em>disp=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/forecasters.html#ARIMAForecaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.forecasters.ARIMAForecaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sktime.forecasters.base.html#sktime.forecasters.base.BaseUpdateableForecaster" title="sktime.forecasters.base.BaseUpdateableForecaster"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.forecasters.base.BaseUpdateableForecaster</span></code></a></p>
+<p>ARIMA (Auto-regressive Integrated Moving-average) forecaster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a><em>, </em><em>optional</em><em> (</em><em>default=</em><em>(</em><em>1</em><em>, </em><em>0</em><em>, </em><em>0</em><em>)</em><em>)</em>) – The (p,d,q) order of the model for the number of AR parameters, differences, and MA parameters. d must be an
+integer indicating the integration order of the process, while p and q may either be an integers indicating the
+AR and MA orders (so that all lags up to those orders are included) or else iterables giving specific AR and /
+or MA lags to include. Default is an AR(1) model: (1,0,0).</p></li>
+<li><p><strong>seasonal_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a><em>, </em><em>optional</em><em> (</em><em>default=</em><em>(</em><em>0</em><em>, </em><em>0</em><em>, </em><em>0</em><em>, </em><em>0</em><em>)</em><em>)</em>) – The (P,D,Q,s) order of the seasonal component of the model for the AR parameters, differences, MA parameters,
+and periodicity. d must be an integer indicating the integration order of the process, while p and q may either
+be an integers indicating the AR and MA orders (so that all lags up to those orders are included) or else
+iterables giving specific AR and / or MA lags to include. s is an integer giving the periodicity (number of
+periods in season), often it is 4 for quarterly data or 12 for monthly data. Default is no seasonal effect.</p></li>
+<li><p><strong>trend</strong> (<em>str{'n'</em><em>,</em><em>'c'</em><em>,</em><em>'t'</em><em>,</em><em>'ct'}</em><em> or </em><em>iterable</em><em>, </em><em>optional</em>) – Parameter controlling the deterministic trend polynomial <span class="math notranslate nohighlight">\(A(t)\)</span>.
+Can be specified as a string where ‘c’ indicates a constant (i.e. a
+degree zero component of the trend polynomial), ‘t’ indicates a
+linear trend with time, and ‘ct’ is both. Can also be specified as an
+iterable defining the polynomial as in <cite>numpy.poly1d</cite>, where
+<cite>[1,1,0,1]</cite> would denote <span class="math notranslate nohighlight">\(a + bt + ct^3\)</span>. Default is to not
+include a trend component.</p></li>
+<li><p><strong>enforce_stationarity</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Whether or not to transform the AR parameters to enforce stationarity
+in the autoregressive component of the model. Default is True.</p></li>
+<li><p><strong>enforce_invertibility</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Whether or not to transform the MA parameters to enforce invertibility
+in the moving average component of the model. Default is True.</p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default='lbfgs'</em><em>)</em>) – The method determines which solver from scipy.optimize is used, and it can be chosen from
+among the following strings:
+- ’newton’ for Newton-Raphson, ‘nm’ for Nelder-Mead
+- ’bfgs’ for Broyden-Fletcher-Goldfarb-Shanno (BFGS)
+- ’lbfgs’ for limited-memory BFGS with optional box constraints
+- ’powell’ for modified Powell’s method
+- ’cg’ for conjugate gradient
+- ’ncg’ for Newton-conjugate gradient
+- ’basinhopping’ for global basin-hopping solver
+The explicit arguments in fit are passed to the solver, with the exception of the basin-hopping solver.
+Each solver has several optional arguments that are not the same across solvers.
+See the notes section below (or scipy.optimize) for the available arguments and for the list of explicit
+arguments that the basin-hopping solver supports.</p></li>
+<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=1000</em><em>)</em>) – The maximum number of iterations to perfom in fitting the likelihood to the data.</p></li>
+<li><p><strong>check_input</strong> – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.forecasters.forecasters.ExpSmoothingForecaster">
+<em class="property">class </em><code class="descclassname">sktime.forecasters.forecasters.</code><code class="descname">ExpSmoothingForecaster</code><span class="sig-paren">(</span><em>trend=None</em>, <em>damped=False</em>, <em>seasonal=None</em>, <em>seasonal_periods=None</em>, <em>smoothing_level=None</em>, <em>smoothing_slope=None</em>, <em>smoothing_seasonal=None</em>, <em>damping_slope=None</em>, <em>optimized=True</em>, <em>use_boxcox=False</em>, <em>remove_bias=False</em>, <em>use_basinhopping=False</em>, <em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/forecasters.html#ExpSmoothingForecaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.forecasters.ExpSmoothingForecaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sktime.forecasters.base.html#sktime.forecasters.base.BaseSingleSeriesForecaster" title="sktime.forecasters.base.BaseSingleSeriesForecaster"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.forecasters.base.BaseSingleSeriesForecaster</span></code></a></p>
+<p>Holt-Winters exponential smoothing forecaster. Default settings use simple exponential smoothing
+without trend and seasonality components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trend</strong> (<em>str{&quot;add&quot;</em><em>, </em><em>&quot;mul&quot;</em><em>, </em><em>&quot;additive&quot;</em><em>, </em><em>&quot;multiplicative&quot;</em><em>, </em><em>None}</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Type of trend component.</p></li>
+<li><p><strong>damped</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Should the trend component be damped.</p></li>
+<li><p><strong>seasonal</strong> (<em>{&quot;add&quot;</em><em>, </em><em>&quot;mul&quot;</em><em>, </em><em>&quot;additive&quot;</em><em>, </em><em>&quot;multiplicative&quot;</em><em>, </em><em>None}</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Type of seasonal component.</p></li>
+<li><p><strong>seasonal_periods</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The number of seasons to consider for the holt winters.</p></li>
+<li><p><strong>smoothing_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – The alpha value of the simple exponential smoothing, if the value
+is set then this value will be used as the value.</p></li>
+<li><p><strong>smoothing_slope</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – The beta value of the Holt’s trend method, if the value is
+set then this value will be used as the value.</p></li>
+<li><p><strong>smoothing_seasonal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – The gamma value of the holt winters seasonal method, if the value
+is set then this value will be used as the value.</p></li>
+<li><p><strong>damping_slope</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – The phi value of the damped method, if the value is
+set then this value will be used as the value.</p></li>
+<li><p><strong>optimized</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Estimate model parameters by maximizing the log-likelihood</p></li>
+<li><p><strong>use_boxcox</strong> (<em>{True</em><em>, </em><em>False</em><em>, </em><em>'log'</em><em>, </em><em>float}</em><em>, </em><em>optional</em>) – Should the Box-Cox transform be applied to the data first? If ‘log’
+then apply the log. If float then use lambda equal to float.</p></li>
+<li><p><strong>remove_bias</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Remove bias from forecast values and fitted values by enforcing
+that the average residual is equal to zero.</p></li>
+<li><p><strong>use_basinhopping</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Using Basin Hopping optimizer to find optimal values</p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="simple">
+<dt>[1] Hyndman, Rob J., and George Athanasopoulos. Forecasting: principles</dt><dd><p>and practice. OTexts, 2014.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.forecasters.forecasters.DummyForecaster">
+<em class="property">class </em><code class="descclassname">sktime.forecasters.forecasters.</code><code class="descname">DummyForecaster</code><span class="sig-paren">(</span><em>strategy='last'</em>, <em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/forecasters.html#DummyForecaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.forecasters.DummyForecaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sktime.forecasters.base.html#sktime.forecasters.base.BaseSingleSeriesForecaster" title="sktime.forecasters.base.BaseSingleSeriesForecaster"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.forecasters.base.BaseSingleSeriesForecaster</span></code></a></p>
+<p>Dummy forecaster for naive forecasting approaches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strategy</strong> (<em>str{'mean'</em><em>, </em><em>'last'</em><em>, </em><em>'linear'}</em><em>, </em><em>optional</em><em> (</em><em>default='last'</em><em>)</em>) – Naive forecasting strategy</p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.forecasters.forecasters.EnsembleForecaster">
+<em class="property">class </em><code class="descclassname">sktime.forecasters.forecasters.</code><code class="descname">EnsembleForecaster</code><span class="sig-paren">(</span><em>estimators=None</em>, <em>weights=None</em>, <em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/forecasters.html#EnsembleForecaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.forecasters.EnsembleForecaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sktime.forecasters.base.html#sktime.forecasters.base.BaseForecaster" title="sktime.forecasters.base.BaseForecaster"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.forecasters.base.BaseForecaster</span></code></a></p>
+<p>Ensemble of forecasters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimators</strong> (<em>list of</em><em> (</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>estimator</em><em>) </em><em>tuples</em>) – List of (name, estimator) tuples.</p></li>
+<li><p><strong>weights</strong> (<em>array-like</em><em>, </em><em>shape =</em><em> [</em><em>n_estimators</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Sequence of weights (float or int) to weight the occurrences of predicted values before averaging.
+Uses uniform weights if None.</p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="sktime.forecasters.forecasters.EnsembleForecaster.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/forecasters.html#EnsembleForecaster.get_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.forecasters.EnsembleForecaster.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>params</strong> – Parameter names mapped to their values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mapping of string to any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.forecasters.forecasters.EnsembleForecaster.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/forecasters.html#EnsembleForecaster.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.forecasters.EnsembleForecaster.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sktime.regressors.html" class="btn btn-neutral float-right" title="sktime.regressors package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sktime.forecasters.base.html" class="btn btn-neutral float-left" title="sktime.forecasters.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

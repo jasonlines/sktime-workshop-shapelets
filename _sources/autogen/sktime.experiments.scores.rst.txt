@@ -1,0 +1,7 @@
+sktime.experiments.scores module
+================================
+
+.. automodule:: sktime.experiments.scores
+    :members:
+    :undoc-members:
+    :show-inheritance:

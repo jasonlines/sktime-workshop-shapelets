@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.contrib.frequency_based.rise &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.contrib.frequency_based.rise</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.contrib.frequency_based.rise</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble.forest</span> <span class="k">import</span> <span class="n">ForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="k">import</span> <span class="n">DecisionTreeClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="k">import</span> <span class="n">class_distribution</span>
+
+
+<div class="viewcode-block" id="RandomIntervalSpectralForest"><a class="viewcode-back" href="../../../../autogen/sktime.contrib.frequency_based.rise.html#sktime.contrib.frequency_based.rise.RandomIntervalSpectralForest">[docs]</a><span class="k">class</span> <span class="nc">RandomIntervalSpectralForest</span><span class="p">(</span><span class="n">ForestClassifier</span><span class="p">):</span>
+    <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Tony Bagnall&quot;</span>
+
+    <span class="sd">&quot;&quot;&quot;Random Interval Spectral Forest (RISE).</span>
+
+<span class="sd">    Random Interval Spectral Forest: stripped down implementation of RISE from Lines 2018:</span>
+<span class="sd">    @article</span>
+<span class="sd">    {lines17hive-cote,</span>
+<span class="sd">     author = {J. Lines, S. Taylor and A. Bagnall},</span>
+<span class="sd">              title = {Time Series Classification with HIVE-COTE: The Hierarchical Vote Collective of Transformation-Based Ensembles},</span>
+<span class="sd">    journal = {ACM Transactions on Knowledge and Data Engineering},</span>
+<span class="sd">    volume = {12},</span>
+<span class="sd">    number= {5},</span>
+<span class="sd">    year = {2018}</span>
+<span class="sd">    </span>
+<span class="sd">    Overview: Input n series length m</span>
+<span class="sd">    for each tree</span>
+<span class="sd">        sample a random intervals</span>
+<span class="sd">        take the ACF and PS over this interval, and concatenate features</span>
+<span class="sd">        build tree on new features</span>
+<span class="sd">    ensemble the trees through averaging probabilities.</span>
+<span class="sd">    Need to have a minimum interval for each tree</span>
+<span class="sd">    This is from the python github. </span>
+<span class="sd">    For the Java version, see</span>
+<span class="sd">    https://github.com/TonyBagnall/uea-tsc/blob/master/src/main/java/timeseriesweka/classifiers/RISE.java</span>
+<span class="sd">    </span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n_trees         : ensemble size, integer, optional (default = 200)</span>
+<span class="sd">    random_state    : seed for random, integer, optional (default to no seed)</span>
+<span class="sd">    dim_to_use      : the column of the panda passed to use, optional (default = 0)</span>
+<span class="sd">    min_interval    : minimum width of an interval, optional (default = 16)</span>
+<span class="sd">    acf_lag         : maximum number of autocorellation terms to use (default =100)</span>
+<span class="sd">    acf_min_values : never use fewer than this number of terms to fnd a correlation (default =4)</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    num_classes    : extracted from the data</span>
+<span class="sd">    num_atts       : extracted from the data</span>
+<span class="sd">    classifiers    : array of DecisionTree classifiers</span>
+<span class="sd">    intervals      : stores indexes of the start and end points for all classifiers</span>
+<span class="sd">    dim_to_use     : the column of the panda passed to use (can be passed a multidimensional problem, but will only use one)</span>
+
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">num_trees</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                 <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dim_to_use</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">min_interval</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+                 <span class="n">acf_lag</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">acf_min_values</span><span class="o">=</span><span class="mi">4</span>
+                 <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RandomIntervalSpectralForest</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">base_estimator</span><span class="o">=</span><span class="n">DecisionTreeClassifier</span><span class="p">(),</span>
+            <span class="n">n_estimators</span><span class="o">=</span><span class="n">num_trees</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span><span class="o">=</span><span class="n">num_trees</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span> <span class="o">=</span> <span class="n">dim_to_use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_interval</span><span class="o">=</span><span class="n">min_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acf_lag</span><span class="o">=</span><span class="n">acf_lag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acf_min_values</span><span class="o">=</span><span class="n">acf_min_values</span>
+        <span class="c1"># These are all set in fit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">series_length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lags</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># For the multivariate case treating this as a univariate classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span> <span class="o">=</span> <span class="n">dim_to_use</span>
+
+<div class="viewcode-block" id="RandomIntervalSpectralForest.fit"><a class="viewcode-back" href="../../../../autogen/sktime.contrib.frequency_based.rise.html#sktime.contrib.frequency_based.rise.RandomIntervalSpectralForest.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build a forest of trees from the training set (X, y) using random intervals and summary measures.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like or sparse matrix of shape = [n_samps, num_atts]</span>
+<span class="sd">            The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</span>
+<span class="sd">        y : array-like, shape = [n_samples] or [n_samples, n_outputs]</span>
+<span class="sd">            The class labels.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">         &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input should either be a 2d numpy array, or a pandas dataframe containing Series objects&quot;</span><span class="p">)</span>
+        <span class="n">n_samps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">series_length</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">class_distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">series_length</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">series_length</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_interval</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">series_length</span><span class="p">)</span>
+        <span class="c1"># Check lag against global properties</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acf_lag</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">series_length</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">acf_min_values</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acf_lag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">series_length</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">acf_min_values</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acf_lag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acf_lag</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lags</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span><span class="p">):</span>
+            <span class="n">temp_lag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acf_lag</span>
+            <span class="k">if</span> <span class="n">temp_lag</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">acf_min_values</span><span class="p">:</span>
+                <span class="n">temp_lag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">acf_min_values</span>
+            <span class="k">if</span> <span class="n">temp_lag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">temp_lag</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lags</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">temp_lag</span><span class="p">)</span>
+            <span class="n">acf_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samps</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">lags</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">ps_len</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">ps_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samps</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">ps_len</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_samps</span><span class="p">):</span>
+                <span class="n">acf_x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">acf</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span> <span class="n">temp_lag</span><span class="p">)</span>
+                <span class="n">ps_x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ps</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">transformed_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">acf_x</span><span class="p">,</span><span class="n">ps_x</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1">#            transformed_x=acf_x</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="RandomIntervalSpectralForest.predict"><a class="viewcode-back" href="../../../../autogen/sktime.contrib.frequency_based.rise.html#sktime.contrib.frequency_based.rise.RandomIntervalSpectralForest.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find predictions for all cases in X. Built on top of predict_proba</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : The training input samples.  array-like or sparse matrix of shape = [n_samps, num_atts] or a data frame.</span>
+<span class="sd">        If a Pandas data frame is passed, the column _dim_to_use is extracted</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output : 1D array of predictions,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">probs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">prob</span><span class="p">)]</span> <span class="k">for</span> <span class="n">prob</span> <span class="ow">in</span> <span class="n">probs</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="RandomIntervalSpectralForest.predict_proba"><a class="viewcode-back" href="../../../../autogen/sktime.contrib.frequency_based.rise.html#sktime.contrib.frequency_based.rise.RandomIntervalSpectralForest.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find probability estimates for each class for all cases in X.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like or sparse matrix of shape = [n_samps, num_atts]</span>
+<span class="sd">            The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</span>
+
+<span class="sd">        Local variables</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_samps     : number of cases to classify</span>
+<span class="sd">        num_atts    : number of attributes in X, must match _num_atts determined in fit</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output : 2D array of probabilities,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input should either be a 2d numpy array, or a pandas dataframe containing Series objects&quot;</span><span class="p">)</span>
+        <span class="n">rows</span><span class="p">,</span><span class="n">cols</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+        <span class="c1">#HERE Do transform againnum_att</span>
+        <span class="n">n_samps</span><span class="p">,</span> <span class="n">num_atts</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">num_atts</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">series_length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot; ERROR number of attributes in the train does not match that in the test data&quot;</span><span class="p">)</span>
+        <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span><span class="p">):</span>
+            <span class="n">acf_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lags</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">ps_len</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">ps_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samps</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">ps_len</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_samps</span><span class="p">):</span>
+                <span class="n">acf_x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">acf</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">lags</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">ps_x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ps</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span><span class="bp">self</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">transformed_x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">acf_x</span><span class="p">,</span><span class="n">ps_x</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">sums</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">sums</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+<div class="viewcode-block" id="acf"><a class="viewcode-back" href="../../../../autogen/sktime.contrib.frequency_based.rise.html#sktime.contrib.frequency_based.rise.acf">[docs]</a><span class="k">def</span> <span class="nf">acf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; autocorrelation function transform, currently calculated using standard stats method.</span>
+<span class="sd">    We could use inverse of power spectrum, especially given we already have found it, worth testing for speed and correctness</span>
+<span class="sd">    HOWEVER, for long series, it may not give much benefit, as we do not use that many ACF terms</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : a 1D array</span>
+<span class="sd">    max_lag: number of ACF terms to find</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ----------</span>
+<span class="sd">    an array of length max_lag</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">max_lag</span><span class="p">)</span>
+    <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+<span class="c1"># Could just do it ourselves ... TO TEST</span>
+        <span class="n">s1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="n">lag</span><span class="p">])</span>
+        <span class="n">ss1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="n">lag</span><span class="p">]))</span>
+        <span class="n">s2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">lag</span><span class="p">:])</span>
+        <span class="n">ss2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">lag</span><span class="p">:]))</span>
+        <span class="n">s1</span><span class="o">=</span><span class="n">s1</span><span class="o">/</span><span class="p">(</span><span class="n">length</span><span class="o">-</span><span class="n">lag</span><span class="p">)</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">s2</span> <span class="o">/</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">lag</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">lag</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="n">lag</span><span class="p">]</span><span class="o">-</span><span class="n">s1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">lag</span><span class="p">:]</span><span class="o">-</span><span class="n">s2</span><span class="p">))</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">/</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">lag</span><span class="p">)</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">ss1</span><span class="o">/</span><span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">lag</span><span class="p">)</span><span class="o">-</span><span class="n">s1</span><span class="o">*</span><span class="n">s1</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">ss2</span><span class="o">/</span><span class="p">(</span><span class="n">length</span><span class="o">-</span><span class="n">lag</span><span class="p">)</span><span class="o">-</span><span class="n">s2</span><span class="o">*</span><span class="n">s2</span>
+<span class="c1">#        print(v1)</span>
+<span class="c1">#        print(v2)</span>
+        <span class="k">if</span> <span class="n">v1</span> <span class="o">&lt;=</span> <span class="mf">0.000000001</span> <span class="ow">and</span> <span class="n">v2</span> <span class="o">&lt;=</span> <span class="mf">0.000000001</span><span class="p">:</span> <span class="c1"># Both zero variance, so must be 100% correlated</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">v1</span> <span class="o">&lt;=</span> <span class="mf">0.000000001</span> <span class="ow">or</span> <span class="n">v2</span> <span class="o">&lt;=</span> <span class="mf">0.000000001</span><span class="p">:</span> <span class="c1"># One zero variance the other not</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">v2</span><span class="p">))</span>
+<span class="c1">#        y[lag - 1] = np.corrcoef(x[lag:], x[:-lag])[0][1]</span>
+<span class="c1">#        if np.isnan(y[lag - 1]) or np.isinf(y[lag-1]):</span>
+<span class="c1">#            y[lag-1]=0</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="matrix_acf"><a class="viewcode-back" href="../../../../autogen/sktime.contrib.frequency_based.rise.html#sktime.contrib.frequency_based.rise.matrix_acf">[docs]</a><span class="k">def</span> <span class="nf">matrix_acf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_cases</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; autocorrelation function transform, currently calculated using standard stats method.</span>
+<span class="sd">    We could use inverse of power spectrum, especially given we already have found it, worth testing for speed and correctness</span>
+<span class="sd">    HOWEVER, for long series, it may not give much benefit, as we do not use that many ACF terms</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : a matrix of num_cases,</span>
+<span class="sd">    max_lag: number of ACF terms to find</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ----------</span>
+<span class="sd">    an matrix of length max_lag</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_cases</span><span class="p">,</span><span class="n">max_lag</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># Could just do it ourselves ... TO TEST</span>
+        <span class="c1">#            s1=np.sum(x[:-lag])/x.shape()[0]</span>
+        <span class="c1">#            ss1=s1*s1</span>
+        <span class="c1">#            s2=np.sum(x[lag:])</span>
+        <span class="c1">#            ss2=s2*s2</span>
+        <span class="c1">#</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span><span class="n">lag</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:,</span><span class="o">-</span><span class="n">lag</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">lag</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">lag</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">return</span> <span class="n">y</span></div>
+
+
+
+<div class="viewcode-block" id="ps"><a class="viewcode-back" href="../../../../autogen/sktime.contrib.frequency_based.rise.html#sktime.contrib.frequency_based.rise.ps">[docs]</a><span class="k">def</span> <span class="nf">ps</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; power spectrum transform, currently calculated using np function.</span>
+<span class="sd">    It would be worth looking at ff implementation, see difference in speed to java</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : an array</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ----------</span>
+<span class="sd">    an array of length x.length/2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fft</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">fft</span><span class="o">=</span><span class="n">fft</span><span class="o">.</span><span class="n">real</span><span class="o">*</span><span class="n">fft</span><span class="o">.</span><span class="n">real</span><span class="o">+</span><span class="n">fft</span><span class="o">.</span><span class="n">imag</span><span class="o">*</span><span class="n">fft</span><span class="o">.</span><span class="n">imag</span>
+    <span class="n">fft</span><span class="o">=</span><span class="n">fft</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fft</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">max_lag</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">max_lag</span><span class="p">)</span>
+    <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="c1">#Built in version complains when zero variance</span>
+    <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">lag</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="n">lag</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]):</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">lag</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">acf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

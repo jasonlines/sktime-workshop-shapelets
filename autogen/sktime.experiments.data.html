@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.experiments.data module &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sktime.experiments.losses module" href="sktime.experiments.losses.html" />
+    <link rel="prev" title="sktime.experiments.analysis module" href="sktime.experiments.analysis.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sktime.html">sktime package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sktime.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sktime.classifiers.html">sktime.classifiers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.contrib.html">sktime.contrib package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.datasets.html">sktime.datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.distances.html">sktime.distances package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sktime.experiments.html">sktime.experiments package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sktime.experiments.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.forecasters.html">sktime.forecasters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.regressors.html">sktime.regressors package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.transformers.html">sktime.transformers package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sktime.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sktime.html">sktime package</a> &raquo;</li>
+        
+          <li><a href="sktime.experiments.html">sktime.experiments package</a> &raquo;</li>
+        
+      <li>sktime.experiments.data module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autogen/sktime.experiments.data.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sktime.experiments.data">
+<span id="sktime-experiments-data-module"></span><h1>sktime.experiments.data module<a class="headerlink" href="#module-sktime.experiments.data" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="sktime.experiments.data.DatasetHDD">
+<em class="property">class </em><code class="descclassname">sktime.experiments.data.</code><code class="descname">DatasetHDD</code><span class="sig-paren">(</span><em>dataset_loc</em>, <em>dataset_name</em>, <em>train_test_exists=True</em>, <em>sufix_train='_TRAIN.ts'</em>, <em>suffix_test='_TEST.ts'</em>, <em>target='target'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#DatasetHDD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.DatasetHDD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Another class for holding the data</p>
+<dl class="attribute">
+<dt id="sktime.experiments.data.DatasetHDD.dataset_name">
+<code class="descname">dataset_name</code><a class="headerlink" href="#sktime.experiments.data.DatasetHDD.dataset_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: Name of the dataset
+:rtype: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.experiments.data.DatasetHDD.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#DatasetHDD.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.DatasetHDD.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dataset in pandas DataFrame format</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.experiments.data.DatasetLoadFromDir">
+<em class="property">class </em><code class="descclassname">sktime.experiments.data.</code><code class="descname">DatasetLoadFromDir</code><span class="sig-paren">(</span><em>root_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#DatasetLoadFromDir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.DatasetLoadFromDir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Loads all datasets in a root directory</p>
+<dl class="method">
+<dt id="sktime.experiments.data.DatasetLoadFromDir.load_datasets">
+<code class="descname">load_datasets</code><span class="sig-paren">(</span><em>train_test_exists=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#DatasetLoadFromDir.load_datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.DatasetLoadFromDir.load_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>train_test_exists</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Flag whether the test/train split exists</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of DatasetHDD objects</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.experiments.data.DatasetRAM">
+<em class="property">class </em><code class="descclassname">sktime.experiments.data.</code><code class="descname">DatasetRAM</code><span class="sig-paren">(</span><em>dataset</em>, <em>dataset_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#DatasetRAM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.DatasetRAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="sktime.experiments.data.DatasetRAM.dataset_name">
+<code class="descname">dataset_name</code><a class="headerlink" href="#sktime.experiments.data.DatasetRAM.dataset_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: Name of the dataset
+:rtype: str</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.experiments.data.DatasetRAM.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#DatasetRAM.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.DatasetRAM.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dataset in pandas DataFrame format</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.experiments.data.Result">
+<em class="property">class </em><code class="descclassname">sktime.experiments.data.</code><code class="descname">Result</code><span class="sig-paren">(</span><em>dataset_name</em>, <em>strategy_name</em>, <em>y_true</em>, <em>y_pred</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#Result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Used for passing results to the analyse results class</p>
+<dl class="attribute">
+<dt id="sktime.experiments.data.Result.dataset_name">
+<code class="descname">dataset_name</code><a class="headerlink" href="#sktime.experiments.data.Result.dataset_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: Name of the dataset
+:rtype: str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.experiments.data.Result.strategy_name">
+<code class="descname">strategy_name</code><a class="headerlink" href="#sktime.experiments.data.Result.strategy_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: Name of the strategy
+:rtype: str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.experiments.data.Result.y_pred">
+<code class="descname">y_pred</code><a class="headerlink" href="#sktime.experiments.data.Result.y_pred" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: Predicted target variables
+:rtype: list</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.experiments.data.Result.y_true">
+<code class="descname">y_true</code><a class="headerlink" href="#sktime.experiments.data.Result.y_true" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: True target variables
+:rtype: list</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.experiments.data.ResultHDD">
+<em class="property">class </em><code class="descclassname">sktime.experiments.data.</code><code class="descname">ResultHDD</code><span class="sig-paren">(</span><em>results_save_dir</em>, <em>strategies_save_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#ResultHDD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.ResultHDD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sktime.experiments.data.SKTimeResult" title="sktime.experiments.data.SKTimeResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.experiments.data.SKTimeResult</span></code></a></p>
+<p>Class for storing the results of the orchestrator</p>
+<dl class="method">
+<dt id="sktime.experiments.data.ResultHDD.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#ResultHDD.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.ResultHDD.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>sktime results</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.experiments.data.ResultHDD.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>dataset_name</em>, <em>strategy_name</em>, <em>y_true</em>, <em>y_pred</em>, <em>cv_fold</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#ResultHDD.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.ResultHDD.save" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the dataset</p></li>
+<li><p><strong>strategy_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the strategy</p></li>
+<li><p><strong>y_true</strong> (<em>array</em>) – True lables array</p></li>
+<li><p><strong>y_pred</strong> (<em>array</em>) – Predictions array</p></li>
+<li><p><strong>cv_fold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Cross validation fold</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.experiments.data.ResultHDD.strategies_save_dir">
+<code class="descname">strategies_save_dir</code><a class="headerlink" href="#sktime.experiments.data.ResultHDD.strategies_save_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns: Path where the strategies will be saved
+:rtype: str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.experiments.data.ResultRAM">
+<em class="property">class </em><code class="descclassname">sktime.experiments.data.</code><code class="descname">ResultRAM</code><a class="reference internal" href="../_modules/sktime/experiments/data.html#ResultRAM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.ResultRAM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sktime.experiments.data.SKTimeResult" title="sktime.experiments.data.SKTimeResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.experiments.data.SKTimeResult</span></code></a></p>
+<p>Class for storing the results of the experiments in memory</p>
+<dl class="method">
+<dt id="sktime.experiments.data.ResultRAM.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#ResultRAM.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.ResultRAM.load" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>sktime results</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.experiments.data.ResultRAM.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>dataset_name</em>, <em>strategy_name</em>, <em>y_true</em>, <em>y_pred</em>, <em>cv_fold</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#ResultRAM.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.ResultRAM.save" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the dataset</p></li>
+<li><p><strong>strategy_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the strategy</p></li>
+<li><p><strong>y_true</strong> (<em>array</em>) – True lables array</p></li>
+<li><p><strong>y_pred</strong> (<em>array</em>) – Predictions array</p></li>
+<li><p><strong>cv_fold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Cross validation fold</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.experiments.data.SKTimeResult">
+<em class="property">class </em><code class="descclassname">sktime.experiments.data.</code><code class="descname">SKTimeResult</code><a class="reference internal" href="../_modules/sktime/experiments/data.html#SKTimeResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.SKTimeResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<dl class="method">
+<dt id="sktime.experiments.data.SKTimeResult.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#SKTimeResult.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.SKTimeResult.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>method for loading the results</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.experiments.data.SKTimeResult.save">
+<code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/experiments/data.html#SKTimeResult.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.experiments.data.SKTimeResult.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the result</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sktime.experiments.losses.html" class="btn btn-neutral float-right" title="sktime.experiments.losses module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sktime.experiments.analysis.html" class="btn btn-neutral float-left" title="sktime.experiments.analysis module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

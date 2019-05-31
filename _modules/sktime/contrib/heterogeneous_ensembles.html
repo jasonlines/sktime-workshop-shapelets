@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.contrib.heterogeneous_ensembles &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.contrib.heterogeneous_ensembles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.contrib.heterogeneous_ensembles</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">cross_val_predict</span><span class="p">,</span> <span class="n">LeaveOneOut</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="k">import</span> <span class="n">class_distribution</span>
+
+
+<span class="c1"># Author:   Jason Lines &lt;j.lines@uea.ac.uk&gt;</span>
+
+<div class="viewcode-block" id="HeterogeneousEnsemble"><a class="viewcode-back" href="../../../autogen/sktime.contrib.heterogeneous_ensembles.html#sktime.contrib.heterogeneous_ensembles.HeterogeneousEnsemble">[docs]</a><span class="k">class</span> <span class="nc">HeterogeneousEnsemble</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">classifiers</span><span class="p">,</span>
+                 <span class="n">classifier_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">classifier_param_grids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cv_folds</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                 <span class="n">alpha</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">classifier_param_grids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">classifier_param_grids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classifiers</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If paramaters are to be optimised for any classifiers please ensure that &quot;</span>
+                             <span class="s2">&quot;len(classifier_param_grids)==len(classifiers) - specify None for any classifiers not &quot;</span>
+                             <span class="s2">&quot;requiring parameter optimisation. Expected len(classifier_param_grids): &quot;</span><span class="o">+</span>
+                             <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classifiers</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;, found: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classifier_param_grids</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">classifier_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classifiers</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect number of classifier names. Found &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classifier_names</span><span class="p">))</span>
+                             <span class="o">+</span> <span class="s2">&quot; names and &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classifiers</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot; classifiers.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span> <span class="o">=</span> <span class="n">classifiers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_param_grids</span> <span class="o">=</span> <span class="n">classifier_param_grids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_names</span> <span class="o">=</span> <span class="n">classifier_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cv_folds</span> <span class="o">=</span> <span class="n">cv_folds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_preds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_probas</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constituent_build_times</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="HeterogeneousEnsemble.add_classifier"><a class="viewcode-back" href="../../../autogen/sktime.contrib.heterogeneous_ensembles.html#sktime.contrib.heterogeneous_ensembles.HeterogeneousEnsemble.add_classifier">[docs]</a>    <span class="k">def</span> <span class="nf">add_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">classifier_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">classifier</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_param_grids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">classifier_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HeterogeneousEnsemble.fit"><a class="viewcode-back" href="../../../autogen/sktime.contrib.heterogeneous_ensembles.html#sktime.contrib.heterogeneous_ensembles.HeterogeneousEnsemble.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">class_distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">constituent_build_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)))</span>
+
+        <span class="c1"># build each classifier</span>
+        <span class="k">for</span> <span class="n">c_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Building &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier_names</span><span class="p">[</span><span class="n">c_id</span><span class="p">])</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span><span class="o">.</span><span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier_param_grids</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier_param_grids</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">grid</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">c_id</span><span class="p">],</span> <span class="n">param_grid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier_param_grids</span><span class="p">[</span><span class="n">c_id</span><span class="p">],</span>
+                                    <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_cv_folds</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">best_estimator_</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">training_probas</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cross_val_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">c_id</span><span class="p">],</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cv_folds</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict_proba&#39;</span><span class="p">)</span>
+
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">training_preds</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_probas</span><span class="p">[</span><span class="n">c_id</span><span class="p">]])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_preds</span><span class="p">[</span><span class="n">c_id</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">constituent_build_times</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HeterogeneousEnsemble.predict"><a class="viewcode-back" href="../../../autogen/sktime.contrib.heterogeneous_ensembles.html#sktime.contrib.heterogeneous_ensembles.HeterogeneousEnsemble.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">probas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probas</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">preds</span></div>
+
+<div class="viewcode-block" id="HeterogeneousEnsemble.predict_proba"><a class="viewcode-back" href="../../../autogen/sktime.contrib.heterogeneous_ensembles.html#sktime.contrib.heterogeneous_ensembles.HeterogeneousEnsemble.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+
+        <span class="n">output_probas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">train_sum</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">)):</span>
+            <span class="n">this_train_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+            <span class="c1"># get the probas for this classifier, raise to the pwower of alpha, and multiply by confidence</span>
+            <span class="n">this_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">this_train_acc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifiers</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">))</span>
+            <span class="n">output_probas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_probas</span><span class="p">)</span>
+            <span class="n">train_sum</span> <span class="o">+=</span> <span class="n">this_train_acc</span>
+
+        <span class="c1"># sum up all of the weigthed probas</span>
+        <span class="n">output_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">output_probas</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">sums_by_case</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">output_probas</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sums_by_case</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">([</span><span class="n">sums_by_case</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_probas</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">output_probas</span><span class="p">,</span> <span class="n">sums_by_case</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HeterogeneousEnsemble.preds_and_probas"><a class="viewcode-back" href="../../../autogen/sktime.contrib.heterogeneous_ensembles.html#sktime.contrib.heterogeneous_ensembles.HeterogeneousEnsemble.preds_and_probas">[docs]</a>    <span class="k">def</span> <span class="nf">preds_and_probas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">probas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="c1"># does derivative transform within (if required)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probas</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">preds</span><span class="p">,</span> <span class="n">probas</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># to suppress verbose/forced sklearn FutureWarnings</span>
+    <span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="kn">import</span> <span class="nn">warnings</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warn</span>
+
+    <span class="c1"># imports req. for testing only - can safely delete later</span>
+    <span class="kn">from</span> <span class="nn">sklearn.neighbors.classification</span> <span class="k">import</span> <span class="n">KNeighborsClassifier</span> <span class="k">as</span> <span class="n">KNN</span>
+    <span class="kn">from</span> <span class="nn">sklearn.ensemble.forest</span> <span class="k">import</span> <span class="n">RandomForestClassifier</span> <span class="k">as</span> <span class="n">RandFor</span>
+    <span class="kn">from</span> <span class="nn">sktime.datasets</span> <span class="k">import</span> <span class="n">load_gunpoint</span>
+
+    <span class="c1"># load train and test data</span>
+    <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span> <span class="o">=</span> <span class="n">load_gunpoint</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s1">&#39;TRAIN&#39;</span><span class="p">,</span> <span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">test_x</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">load_gunpoint</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s1">&#39;TEST&#39;</span><span class="p">,</span> <span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># convert to sklearn expected format</span>
+    <span class="n">train_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">train_x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])</span>
+    <span class="n">test_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])</span>
+
+    <span class="c1"># classifiers to use</span>
+    <span class="n">classifiers</span> <span class="o">=</span> <span class="p">[</span><span class="n">KNN</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;brute&#39;</span><span class="p">),</span> <span class="n">RandFor</span><span class="p">()]</span>
+
+    <span class="c1"># params to evaluate in training for each classifier, indexed by classifier from 0 to num_classifiers-1</span>
+    <span class="n">param_grids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">]},</span>
+        <span class="p">{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">]}</span>
+    <span class="p">]</span>
+
+    <span class="c1"># pass classifiers and param grids into a new ensemble classifier</span>
+    <span class="n">he</span> <span class="o">=</span> <span class="n">HeterogeneousEnsemble</span><span class="p">(</span><span class="n">classifiers</span><span class="p">,</span> <span class="n">param_grids</span><span class="p">)</span>
+
+    <span class="c1"># fits the ensemble (training all constiuents, evaluating parameters on train data where param grids are passed)</span>
+    <span class="n">he</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
+
+    <span class="c1"># get the predictions and probas</span>
+    <span class="n">preds</span><span class="p">,</span> <span class="n">probas</span> <span class="o">=</span> <span class="n">he</span><span class="o">.</span><span class="n">preds_and_probas</span><span class="p">(</span><span class="n">test_x</span><span class="p">)</span>
+
+    <span class="c1"># print the test classification accuracy</span>
+    <span class="n">acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">test_y</span><span class="p">,</span> <span class="n">preds</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Acc: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">acc</span><span class="p">))</span>
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

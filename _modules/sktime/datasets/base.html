@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.datasets.base &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.datasets.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.datasets.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for loading datasets</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">..utils.load_data</span> <span class="k">import</span> <span class="n">load_from_tsfile_to_dataframe</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;load_gunpoint&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;load_arrow_head&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;load_italy_power_demand&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;load_shampoo_sales&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;load_longley&quot;</span><span class="p">]</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Markus Löning&#39;</span><span class="p">,</span> <span class="s1">&#39;Sajay Ganesh&#39;</span><span class="p">]</span>
+
+<span class="n">DIRNAME</span> <span class="o">=</span> <span class="s1">&#39;data&#39;</span>
+<span class="n">MODULE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+<span class="c1"># time series classification datasets</span>
+
+<span class="k">def</span> <span class="nf">_load_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">return_X_y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to load datasets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">split</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;TRAIN&quot;</span><span class="p">,</span> <span class="s2">&quot;TEST&quot;</span><span class="p">]:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">split</span> <span class="o">+</span> <span class="s1">&#39;.ts&#39;</span>
+        <span class="n">abspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE</span><span class="p">,</span> <span class="n">DIRNAME</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">load_from_tsfile_to_dataframe</span><span class="p">(</span><span class="n">abspath</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">split</span> <span class="o">==</span> <span class="s2">&quot;ALL&quot;</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;TRAIN&quot;</span><span class="p">,</span> <span class="s2">&quot;TEST&quot;</span><span class="p">]:</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">split</span> <span class="o">+</span> <span class="s1">&#39;.ts&#39;</span>
+            <span class="n">abspath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE</span><span class="p">,</span> <span class="n">DIRNAME</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">load_from_tsfile_to_dataframe</span><span class="p">(</span><span class="n">abspath</span><span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid split value&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Return appropriately</span>
+    <span class="k">if</span> <span class="n">return_X_y</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">X</span><span class="p">[</span><span class="s1">&#39;class_val&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span>
+
+
+<div class="viewcode-block" id="load_gunpoint"><a class="viewcode-back" href="../../../autogen/sktime.datasets.base.html#sktime.datasets.base.load_gunpoint">[docs]</a><span class="k">def</span> <span class="nf">load_gunpoint</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s1">&#39;TRAIN&#39;</span><span class="p">,</span> <span class="n">return_X_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the GunPoint time series classification problem and returns X and y</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    split: str{&quot;ALL&quot;, &quot;TRAIN&quot;, &quot;TEST&quot;}, optional (default=&quot;TRAIN&quot;)</span>
+<span class="sd">        Whether to load the train or test partition of the problem. By default it loads the train split.</span>
+<span class="sd">    return_X_y: bool, optional (default=False)</span>
+<span class="sd">        If True, returns (features, target) separately instead of a single dataframe with columns for</span>
+<span class="sd">        features and the target.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X: pandas DataFrame with m rows and c columns</span>
+<span class="sd">        The time series data for the problem with m cases and c dimensions</span>
+<span class="sd">    y: numpy array</span>
+<span class="sd">        The class labels for each case in X</span>
+
+<span class="sd">    Details</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dimensionality:     univariate</span>
+<span class="sd">    Series length:      150</span>
+<span class="sd">    Train cases:        50</span>
+<span class="sd">    Test cases:         150</span>
+<span class="sd">    Number of classes:  2</span>
+
+<span class="sd">    This dataset involves one female actor and one male actor making a motion with their</span>
+<span class="sd">    hand. The two classes are: Gun-Draw and Point: For Gun-Draw the actors have their</span>
+<span class="sd">    hands by their sides. They draw a replicate gun from a hip-mounted holster, point it</span>
+<span class="sd">    at a target for approximately one second, then return the gun to the holster, and</span>
+<span class="sd">    their hands to their sides. For Point the actors have their gun by their sides.</span>
+<span class="sd">    They point with their index fingers to a target for approximately one second, and</span>
+<span class="sd">    then return their hands to their sides. For both classes, we tracked the centroid</span>
+<span class="sd">    of the actor&#39;s right hands in both X- and Y-axes, which appear to be highly</span>
+<span class="sd">    correlated. The data in the archive is just the X-axis.</span>
+
+<span class="sd">    Dataset details: http://timeseriesclassification.com/description.php?Dataset=GunPoint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;GunPoint&#39;</span>
+    <span class="k">return</span> <span class="n">_load_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">return_X_y</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_italy_power_demand"><a class="viewcode-back" href="../../../autogen/sktime.datasets.base.html#sktime.datasets.base.load_italy_power_demand">[docs]</a><span class="k">def</span> <span class="nf">load_italy_power_demand</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s1">&#39;TRAIN&#39;</span><span class="p">,</span> <span class="n">return_X_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the ItalyPowerDemand time series classification problem and returns X and y</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    split: str{&quot;ALL&quot;, &quot;TRAIN&quot;, &quot;TEST&quot;}, optional (default=&quot;TRAIN&quot;)</span>
+<span class="sd">        Whether to load the train or test partition of the problem. By default it loads the train split.</span>
+<span class="sd">    return_X_y: bool, optional (default=False)</span>
+<span class="sd">        If True, returns (features, target) separately instead of a single dataframe with columns for</span>
+<span class="sd">        features and the target.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X: pandas DataFrame with m rows and c columns</span>
+<span class="sd">        The time series data for the problem with m cases and c dimensions</span>
+<span class="sd">    y: numpy array</span>
+<span class="sd">        The class labels for each case in X</span>
+
+<span class="sd">    Details</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dimensionality:     univariate</span>
+<span class="sd">    Series length:      24</span>
+<span class="sd">    Train cases:        67</span>
+<span class="sd">    Test cases:         1029</span>
+<span class="sd">    Number of classes:  2</span>
+
+<span class="sd">    The data was derived from twelve monthly electrical power demand time series from Italy and</span>
+<span class="sd">    first used in the paper &quot;Intelligent Icons: Integrating Lite-Weight Data Mining and</span>
+<span class="sd">    Visualization into GUI Operating Systems&quot;. The classification task is to distinguish days</span>
+<span class="sd">    from Oct to March (inclusive) from April to September.</span>
+
+<span class="sd">    Dataset details: http://timeseriesclassification.com/description.php?Dataset=ItalyPowerDemand</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ItalyPowerDemand&#39;</span>
+    <span class="k">return</span> <span class="n">_load_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">return_X_y</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_arrow_head"><a class="viewcode-back" href="../../../autogen/sktime.datasets.base.html#sktime.datasets.base.load_arrow_head">[docs]</a><span class="k">def</span> <span class="nf">load_arrow_head</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s1">&#39;TRAIN&#39;</span><span class="p">,</span> <span class="n">return_X_y</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the ArrowHead time series classification problem and returns X and y.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    split: str{&quot;ALL&quot;, &quot;TRAIN&quot;, &quot;TEST&quot;}, optional (default=&quot;TRAIN&quot;)</span>
+<span class="sd">        Whether to load the train or test partition of the problem. By default it loads the train split.</span>
+<span class="sd">    return_X_y: bool, optional (default=False)</span>
+<span class="sd">        If True, returns (features, target) separately instead of a single dataframe with columns for</span>
+<span class="sd">        features and the target.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X: pandas DataFrame with m rows and c columns</span>
+<span class="sd">        The time series data for the problem with m cases and c dimensions</span>
+<span class="sd">    y: numpy array</span>
+<span class="sd">        The class labels for each case in X</span>
+
+<span class="sd">    Details</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dimensionality:     univariate</span>
+<span class="sd">    Series length:      251</span>
+<span class="sd">    Train cases:        36</span>
+<span class="sd">    Test cases:         175</span>
+<span class="sd">    Number of classes:  3</span>
+
+<span class="sd">    The arrowhead data consists of outlines of the images of arrowheads. The shapes of the</span>
+<span class="sd">    projectile points are converted into a time series using the angle-based method. The</span>
+<span class="sd">    classification of projectile points is an important topic in anthropology. The classes</span>
+<span class="sd">    are based on shape distinctions such as the presence and location of a notch in the</span>
+<span class="sd">    arrow. The problem in the repository is a length normalised version of that used in</span>
+<span class="sd">    Ye09shapelets. The three classes are called &quot;Avonlea&quot;, &quot;Clovis&quot; and &quot;Mix&quot;.&quot;</span>
+
+<span class="sd">    Dataset details: http://timeseriesclassification.com/description.php?Dataset=ArrowHead</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ArrowHead&#39;</span>
+    <span class="k">return</span> <span class="n">_load_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">return_X_y</span><span class="p">)</span></div>
+
+
+<span class="c1"># forecasting datasets</span>
+
+<div class="viewcode-block" id="load_shampoo_sales"><a class="viewcode-back" href="../../../autogen/sktime.datasets.base.html#sktime.datasets.base.load_shampoo_sales">[docs]</a><span class="k">def</span> <span class="nf">load_shampoo_sales</span><span class="p">(</span><span class="n">return_y_as_dataframe</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the shampoo sales univariate time series forecasting dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    return_y_as_dataframe: bool, optional (default=False)</span>
+<span class="sd">        Whether to return target series as series or dataframe, useful for high-level interface.</span>
+<span class="sd">        - If True, returns target series as pandas.DataFrame.s</span>
+<span class="sd">        - If False, returns target series as pandas.Series.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    y : pandas Series/DataFrame</span>
+<span class="sd">        Shampoo sales dataset</span>
+
+<span class="sd">    Details</span>
+<span class="sd">    -------</span>
+<span class="sd">    This dataset describes the monthly number of sales of shampoo over a 3 year period.</span>
+<span class="sd">    The units are a sales count.</span>
+
+<span class="sd">    Dimensionality:     univariate</span>
+<span class="sd">    Series length:      36</span>
+<span class="sd">    Frequency:          Monthly</span>
+<span class="sd">    Number of cases:    1</span>
+
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ..[1] Makridakis, Wheelwright and Hyndman (1998) Forecasting: methods and applications,</span>
+<span class="sd">        John Wiley &amp; Sons: New York. Chapter 3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ShampooSales&#39;</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE</span><span class="p">,</span> <span class="n">DIRNAME</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">PeriodIndex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;M&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_y_as_dataframe</span><span class="p">:</span>
+        <span class="c1"># return nested pandas DataFrame with a single row and column</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())]),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># return nested pandas Series with a single row</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_longley"><a class="viewcode-back" href="../../../autogen/sktime.datasets.base.html#sktime.datasets.base.load_longley">[docs]</a><span class="k">def</span> <span class="nf">load_longley</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_y_as_dataframe</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the Longley dataset for forecasting with exogenous variables.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    return_y_as_dataframe: bool, optional (default=False)</span>
+<span class="sd">        Whether to return target series as series or dataframe, useful for high-level interface.</span>
+<span class="sd">        - If True, returns target series as pandas.DataFrame.s</span>
+<span class="sd">        - If False, returns target series as pandas.Series.</span>
+<span class="sd">    return_X_y: bool, optional (default=False)</span>
+<span class="sd">        If True, returns (features, target) separately instead of a single dataframe with columns for</span>
+<span class="sd">        features and the target.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X: pandas.DataFrame</span>
+<span class="sd">        The exogenous time series data for the problem.</span>
+<span class="sd">    y: pandas.Series</span>
+<span class="sd">        The target series to be predicted.</span>
+
+<span class="sd">    Details</span>
+<span class="sd">    -------</span>
+<span class="sd">    This dataset contains various US macroeconomic variables from 1947 to 1962 that are known to be highly</span>
+<span class="sd">    collinear.</span>
+
+<span class="sd">    Dimensionality:     multivariate, 6</span>
+<span class="sd">    Series length:      16</span>
+<span class="sd">    Frequency:          Yearly</span>
+<span class="sd">    Number of cases:    1</span>
+
+<span class="sd">    Variable description:</span>
+
+<span class="sd">    TOTEMP - Total employment (y)</span>
+<span class="sd">    GNPDEFL - Gross national product deflator</span>
+<span class="sd">    GNP - Gross national product</span>
+<span class="sd">    UNEMP - Number of unemployed</span>
+<span class="sd">    ARMED - Size of armed forces</span>
+<span class="sd">    POP - Population</span>
+<span class="sd">    YEAR - Calendar year (index)</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ..[1] Longley, J.W. (1967) &quot;An Appraisal of Least Squares Programs for the</span>
+<span class="sd">        Electronic Comptuer from the Point of View of the User.&quot;  Journal of</span>
+<span class="sd">        the American Statistical Association.  62.319, 819-41.</span>
+<span class="sd">        (https://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Longley.dat)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">return_y_as_dataframe</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">return_X_y</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`return_y_as_dataframe` can only be set to True if `return_X_y` is True, &quot;</span>
+                         <span class="s2">&quot;otherwise y is given as a column in the returned dataframe and &quot;</span>
+                         <span class="s2">&quot;cannot be returned as a separate dataframe.&quot;</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Longley&#39;</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE</span><span class="p">,</span> <span class="n">DIRNAME</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;YEAR&#39;</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">PeriodIndex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get target series</span>
+    <span class="n">yname</span> <span class="o">=</span> <span class="s1">&#39;TOTEMP&#39;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">yname</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">yname</span><span class="p">)</span>
+
+    <span class="c1"># Get feature series</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">X</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span>
+
+    <span class="k">if</span> <span class="n">return_X_y</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">return_y_as_dataframe</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())]),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">yname</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">yname</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="k">return</span> <span class="n">X</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.forecasters.base module &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sktime.forecasters.forecasters module" href="sktime.forecasters.forecasters.html" />
+    <link rel="prev" title="sktime.forecasters package" href="sktime.forecasters.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sktime.html">sktime package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sktime.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sktime.classifiers.html">sktime.classifiers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.contrib.html">sktime.contrib package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.datasets.html">sktime.datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.distances.html">sktime.distances package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.experiments.html">sktime.experiments package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sktime.forecasters.html">sktime.forecasters package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sktime.forecasters.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.regressors.html">sktime.regressors package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.transformers.html">sktime.transformers package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sktime.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sktime.html">sktime package</a> &raquo;</li>
+        
+          <li><a href="sktime.forecasters.html">sktime.forecasters package</a> &raquo;</li>
+        
+      <li>sktime.forecasters.base module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autogen/sktime.forecasters.base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sktime.forecasters.base">
+<span id="sktime-forecasters-base-module"></span><h1>sktime.forecasters.base module<a class="headerlink" href="#module-sktime.forecasters.base" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="sktime.forecasters.base.BaseForecaster">
+<em class="property">class </em><code class="descclassname">sktime.forecasters.base.</code><code class="descname">BaseForecaster</code><span class="sig-paren">(</span><em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/base.html#BaseForecaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.base.BaseForecaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<p>Base class for forecasters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul class="simple">
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="sktime.forecasters.base.BaseForecaster.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>y</em>, <em>X=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/base.html#BaseForecaster.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.base.BaseForecaster.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit forecaster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>pandas.Series</em>) – Target time series to which to fit the forecaster.</p></li>
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em><em>, </em><em>shape=</em><em>[</em><em>n_obs</em><em>, </em><em>n_vars</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – An optional 2-d dataframe of exogenous variables. If provided, these
+variables are used as additional features in the regression
+operation. This should not include a constant or trend. Note that
+if an <code class="docutils literal notranslate"><span class="pre">ARIMA</span></code> is fit on exogenous features, it must also be provided
+exogenous features for making predictions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>self</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>returns an instance of self.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.forecasters.base.BaseForecaster.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>fh=None</em>, <em>X=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/base.html#BaseForecaster.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.base.BaseForecaster.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict using fitted estimator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fh</strong> (<em>array-like</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – The forecasting horizon with the steps ahead to to predict. Default is one-step ahead forecast,
+i.e. np.array([1])</p></li>
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em><em>, </em><em>shape=</em><em>[</em><em>n_obs</em><em>, </em><em>n_vars</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – An optional 2-d dataframe of exogenous variables. If provided, these
+variables are used as additional features in the regression
+operation. This should not include a constant or trend. Note that if
+provided, the forecaster must also have been fitted on the exogenous
+features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Predictions</strong> – Returns series of predicted values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.Series, shape=(len(fh),)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.forecasters.base.BaseForecaster.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>y</em>, <em>fh=None</em>, <em>X=None</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/base.html#BaseForecaster.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.base.BaseForecaster.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the root mean squared error on the given forecast horizon.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>pandas.Series</em>) – Target time series to which to fit the forecaster.</p></li>
+<li><p><strong>fh</strong> (<em>array-like</em><em>, </em><em>optional</em><em> (</em><em>default=</em><em>[</em><em>1</em><em>]</em><em>)</em>) – The forecasting horizon with the steps ahead to to predict.</p></li>
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em><em>, </em><em>shape=</em><em>[</em><em>n_obs</em><em>, </em><em>n_vars</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – An optional 2-d dataframe of exogenous variables. If provided, these
+variables are used as additional features in the regression
+operation. This should not include a constant or trend. Note that
+if an <code class="docutils literal notranslate"><span class="pre">ARIMA</span></code> is fit on exogenous features, it must also be provided
+exogenous features for making predictions.</p></li>
+<li><p><strong>sample_weight</strong> (<em>array-like</em><em>, </em><em>shape =</em><em> [</em><em>n_observations</em><em>]</em><em>, </em><em>optional</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>score</strong> – Mean squared error of self.predict(fh=fh, X=X) with respect to y.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.forecasters.base.BaseSingleSeriesForecaster">
+<em class="property">class </em><code class="descclassname">sktime.forecasters.base.</code><code class="descname">BaseSingleSeriesForecaster</code><span class="sig-paren">(</span><em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/base.html#BaseSingleSeriesForecaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.base.BaseSingleSeriesForecaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sktime.forecasters.base.BaseForecaster" title="sktime.forecasters.base.BaseForecaster"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.forecasters.base.BaseForecaster</span></code></a></p>
+<p>Classical forecaster which implements predict method for single-series/univariate fitted/updated classical
+forecasting techniques without exogenous variables (X).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.forecasters.base.BaseUpdateableForecaster">
+<em class="property">class </em><code class="descclassname">sktime.forecasters.base.</code><code class="descname">BaseUpdateableForecaster</code><span class="sig-paren">(</span><em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/base.html#BaseUpdateableForecaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.base.BaseUpdateableForecaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sktime.forecasters.base.BaseForecaster" title="sktime.forecasters.base.BaseForecaster"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.forecasters.base.BaseForecaster</span></code></a></p>
+<p>Base class for forecasters with update functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – <ul class="simple">
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+<p>Default is True.</p>
+</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="sktime.forecasters.base.BaseUpdateableForecaster.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>y</em>, <em>X=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/forecasters/base.html#BaseUpdateableForecaster.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.forecasters.base.BaseUpdateableForecaster.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update forecasts using new data via Kalman smoothing/filtering of
+forecasts obtained from previously fitted forecaster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>pandas.Series</em>) – Updated time series which to use for updating the previously fitted forecaster.</p></li>
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em><em>, </em><em>shape=</em><em>[</em><em>n_obs</em><em>, </em><em>n_vars</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – An optional 2-d dataframe of exogenous variables. If provided, these
+variables are used as additional features in the regression
+operation. This should not include a constant or trend. Note that
+if an <code class="docutils literal notranslate"><span class="pre">ARIMA</span></code> is fit on exogenous features, it must also be provided
+exogenous features for making predictions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>self</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>An instance of self</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sktime.forecasters.forecasters.html" class="btn btn-neutral float-right" title="sktime.forecasters.forecasters module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sktime.forecasters.html" class="btn btn-neutral float-left" title="sktime.forecasters package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

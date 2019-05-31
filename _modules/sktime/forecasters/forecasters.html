@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.forecasters.forecasters &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.forecasters.forecasters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.forecasters.forecasters</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">statsmodels.tsa.holtwinters</span> <span class="k">import</span> <span class="n">ExponentialSmoothing</span>
+<span class="kn">from</span> <span class="nn">statsmodels.tsa.statespace.sarimax</span> <span class="k">import</span> <span class="n">SARIMAX</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseForecaster</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseSingleSeriesForecaster</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseUpdateableForecaster</span>
+
+<span class="c1"># SARIMAX is better maintained and offers the same functionality as standard ARIMA class</span>
+<span class="c1"># https://github.com/statsmodels/statsmodels/issues/3884</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ARIMAForecaster&quot;</span><span class="p">,</span> <span class="s2">&quot;ExpSmoothingForecaster&quot;</span><span class="p">,</span> <span class="s2">&quot;DummyForecaster&quot;</span><span class="p">,</span> <span class="s2">&quot;EnsembleForecaster&quot;</span><span class="p">]</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Markus Löning&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ARIMAForecaster"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.forecasters.html#sktime.forecasters.forecasters.ARIMAForecaster">[docs]</a><span class="k">class</span> <span class="nc">ARIMAForecaster</span><span class="p">(</span><span class="n">BaseUpdateableForecaster</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ARIMA (Auto-regressive Integrated Moving-average) forecaster.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    order : tuple, optional (default=(1, 0, 0))</span>
+<span class="sd">        The (p,d,q) order of the model for the number of AR parameters, differences, and MA parameters. d must be an</span>
+<span class="sd">        integer indicating the integration order of the process, while p and q may either be an integers indicating the</span>
+<span class="sd">        AR and MA orders (so that all lags up to those orders are included) or else iterables giving specific AR and /</span>
+<span class="sd">        or MA lags to include. Default is an AR(1) model: (1,0,0).</span>
+<span class="sd">    seasonal_order : tuple, optional (default=(0, 0, 0, 0))</span>
+<span class="sd">        The (P,D,Q,s) order of the seasonal component of the model for the AR parameters, differences, MA parameters,</span>
+<span class="sd">        and periodicity. d must be an integer indicating the integration order of the process, while p and q may either</span>
+<span class="sd">        be an integers indicating the AR and MA orders (so that all lags up to those orders are included) or else</span>
+<span class="sd">        iterables giving specific AR and / or MA lags to include. s is an integer giving the periodicity (number of</span>
+<span class="sd">        periods in season), often it is 4 for quarterly data or 12 for monthly data. Default is no seasonal effect.</span>
+<span class="sd">    trend : str{&#39;n&#39;,&#39;c&#39;,&#39;t&#39;,&#39;ct&#39;} or iterable, optional</span>
+<span class="sd">        Parameter controlling the deterministic trend polynomial :math:`A(t)`.</span>
+<span class="sd">        Can be specified as a string where &#39;c&#39; indicates a constant (i.e. a</span>
+<span class="sd">        degree zero component of the trend polynomial), &#39;t&#39; indicates a</span>
+<span class="sd">        linear trend with time, and &#39;ct&#39; is both. Can also be specified as an</span>
+<span class="sd">        iterable defining the polynomial as in `numpy.poly1d`, where</span>
+<span class="sd">        `[1,1,0,1]` would denote :math:`a + bt + ct^3`. Default is to not</span>
+<span class="sd">        include a trend component.</span>
+<span class="sd">    enforce_stationarity : boolean, optional</span>
+<span class="sd">        Whether or not to transform the AR parameters to enforce stationarity</span>
+<span class="sd">        in the autoregressive component of the model. Default is True.</span>
+<span class="sd">    enforce_invertibility : boolean, optional</span>
+<span class="sd">        Whether or not to transform the MA parameters to enforce invertibility</span>
+<span class="sd">        in the moving average component of the model. Default is True.</span>
+<span class="sd">    check_input : bool, optional (default=True)</span>
+<span class="sd">        - If True, input are checked.</span>
+<span class="sd">        - If False, input are not checked and assumed correct. Use with caution.</span>
+<span class="sd">    method : str, optional (default=&#39;lbfgs&#39;)</span>
+<span class="sd">        The method determines which solver from scipy.optimize is used, and it can be chosen from</span>
+<span class="sd">        among the following strings:</span>
+<span class="sd">        - ’newton’ for Newton-Raphson, ‘nm’ for Nelder-Mead</span>
+<span class="sd">        - ’bfgs’ for Broyden-Fletcher-Goldfarb-Shanno (BFGS)</span>
+<span class="sd">        - ’lbfgs’ for limited-memory BFGS with optional box constraints</span>
+<span class="sd">        - ’powell’ for modified Powell’s method</span>
+<span class="sd">        - ’cg’ for conjugate gradient</span>
+<span class="sd">        - ’ncg’ for Newton-conjugate gradient</span>
+<span class="sd">        - ’basinhopping’ for global basin-hopping solver</span>
+<span class="sd">        The explicit arguments in fit are passed to the solver, with the exception of the basin-hopping solver.</span>
+<span class="sd">        Each solver has several optional arguments that are not the same across solvers.</span>
+<span class="sd">        See the notes section below (or scipy.optimize) for the available arguments and for the list of explicit</span>
+<span class="sd">        arguments that the basin-hopping solver supports.</span>
+<span class="sd">    maxiter : int, optional (default=1000)</span>
+<span class="sd">        The maximum number of iterations to perfom in fitting the likelihood to the data.</span>
+<span class="sd">    check_input : bool, optional (default=True)</span>
+<span class="sd">        - If True, input are checked.</span>
+<span class="sd">        - If False, input are not checked and assumed correct. Use with caution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">seasonal_order</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">trend</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="n">enforce_stationarity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">enforce_invertibility</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">,</span> <span class="n">check_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># TODO add more constructor/fit options from statsmodels</span>
+
+        <span class="c1"># Input checks.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_order</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_order</span><span class="p">(</span><span class="n">seasonal_order</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seasonal_order</span> <span class="o">=</span> <span class="n">seasonal_order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trend</span> <span class="o">=</span> <span class="n">trend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_stationarity</span> <span class="o">=</span> <span class="n">enforce_stationarity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_invertibility</span> <span class="o">=</span> <span class="n">enforce_invertibility</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span> <span class="o">=</span> <span class="n">maxiter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disp</span> <span class="o">=</span> <span class="n">disp</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ARIMAForecaster</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">check_input</span><span class="o">=</span><span class="n">check_input</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal fit.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Target time series to which to fit the forecaster.</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that</span>
+<span class="sd">            if an ``ARIMA`` is fit on exogenous features, it must also be provided</span>
+<span class="sd">            exogenous features for making predictions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : returns an instance of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># unnest series</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_X</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># fit estimator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span> <span class="o">=</span> <span class="n">SARIMAX</span><span class="p">(</span><span class="n">y</span><span class="p">,</span>
+                                  <span class="n">exog</span><span class="o">=</span><span class="n">X</span><span class="p">,</span>
+                                  <span class="n">order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span>
+                                  <span class="n">seasonal_order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seasonal_order</span><span class="p">,</span>
+                                  <span class="n">trend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trend</span><span class="p">,</span>
+                                  <span class="n">enforce_stationarity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enforce_stationarity</span><span class="p">,</span>
+                                  <span class="n">enforce_invertibility</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enforce_invertibility</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal update of forecasts using new data via Kalman smoothing/filtering of</span>
+<span class="sd">        forecasts obtained from previously fitted forecaster.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Updated time series which to use for updating the previously fitted forecaster.</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that</span>
+<span class="sd">            if an ``ARIMA`` is fit on exogenous features, it must also be provided</span>
+<span class="sd">            exogenous features for making predictions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : An instance of self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO for updating see https://github.com/statsmodels/statsmodels/issues/2788 and</span>
+        <span class="c1">#  https://github.com/statsmodels/statsmodels/issues/3318</span>
+
+        <span class="c1"># unnest series</span>
+        <span class="c1"># unnest series</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_X</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># Update estimator.</span>
+        <span class="n">estimator</span> <span class="o">=</span> <span class="n">SARIMAX</span><span class="p">(</span><span class="n">y</span><span class="p">,</span>
+                            <span class="n">exog</span><span class="o">=</span><span class="n">X</span><span class="p">,</span>
+                            <span class="n">order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span>
+                            <span class="n">seasonal_order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seasonal_order</span><span class="p">,</span>
+                            <span class="n">trend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trend</span><span class="p">,</span>
+                            <span class="n">enforce_stationarity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enforce_stationarity</span><span class="p">,</span>
+                            <span class="n">enforce_invertibility</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enforce_invertibility</span><span class="p">)</span>
+        <span class="n">estimator</span><span class="o">.</span><span class="n">initialize_known</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span><span class="o">.</span><span class="n">predicted_state</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span><span class="o">.</span><span class="n">predicted_state_cov</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Filter given fitted parameters.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updated_estimator</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal predict using fitted estimator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fh : array-like, optional (default=None)</span>
+<span class="sd">            The forecasting horizon with the steps ahead to to predict. Default is one-step ahead forecast,</span>
+<span class="sd">            i.e. np.array([1])</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that if</span>
+<span class="sd">            provided, the forecaster must also have been fitted on the exogenous</span>
+<span class="sd">            features.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Predictions : pandas.Series, shape=(len(fh),)</span>
+<span class="sd">            Returns series of predicted values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># unnest series</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_X</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># Adjust forecasting horizon to time index seen in fit, (assume sorted forecasting horizon)</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_idx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">fh</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">fh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">fh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Predict updated (pre-initialised) model with start and end values relative to end of train series</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_updated</span><span class="p">:</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">exog</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># Predict fitted model with start and end points relative to start of train series</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">exog</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># Forecast all periods from start to end of pred horizon, but only return given time points in pred horizon</span>
+        <span class="n">fh_idx</span> <span class="o">=</span> <span class="n">fh</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">fh_idx</span><span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_order</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Helper function to check passed order for ARIMA estimator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        order : tuple</span>
+<span class="sd">            Estimator order</span>
+<span class="sd">        n : int</span>
+<span class="sd">            Length of order</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">==</span> <span class="n">n</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Order must be a tuple of length f</span><span class="si">{n}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">order</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;All values in order must be integers&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ExpSmoothingForecaster"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.forecasters.html#sktime.forecasters.forecasters.ExpSmoothingForecaster">[docs]</a><span class="k">class</span> <span class="nc">ExpSmoothingForecaster</span><span class="p">(</span><span class="n">BaseSingleSeriesForecaster</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Holt-Winters exponential smoothing forecaster. Default settings use simple exponential smoothing</span>
+<span class="sd">    without trend and seasonality components.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    trend : str{&quot;add&quot;, &quot;mul&quot;, &quot;additive&quot;, &quot;multiplicative&quot;, None}, optional (default=None)</span>
+<span class="sd">        Type of trend component.</span>
+<span class="sd">    damped : bool, optional (default=None)</span>
+<span class="sd">        Should the trend component be damped.</span>
+<span class="sd">    seasonal : {&quot;add&quot;, &quot;mul&quot;, &quot;additive&quot;, &quot;multiplicative&quot;, None}, optional (default=None)</span>
+<span class="sd">        Type of seasonal component.</span>
+<span class="sd">    seasonal_periods : int, optional (default=None)</span>
+<span class="sd">        The number of seasons to consider for the holt winters.</span>
+<span class="sd">    smoothing_level : float, optional</span>
+<span class="sd">        The alpha value of the simple exponential smoothing, if the value</span>
+<span class="sd">        is set then this value will be used as the value.</span>
+<span class="sd">    smoothing_slope : float, optional</span>
+<span class="sd">        The beta value of the Holt&#39;s trend method, if the value is</span>
+<span class="sd">        set then this value will be used as the value.</span>
+<span class="sd">    smoothing_seasonal : float, optional</span>
+<span class="sd">        The gamma value of the holt winters seasonal method, if the value</span>
+<span class="sd">        is set then this value will be used as the value.</span>
+<span class="sd">    damping_slope : float, optional</span>
+<span class="sd">        The phi value of the damped method, if the value is</span>
+<span class="sd">        set then this value will be used as the value.</span>
+<span class="sd">    optimized : bool, optional</span>
+<span class="sd">        Estimate model parameters by maximizing the log-likelihood</span>
+<span class="sd">    use_boxcox : {True, False, &#39;log&#39;, float}, optional</span>
+<span class="sd">        Should the Box-Cox transform be applied to the data first? If &#39;log&#39;</span>
+<span class="sd">        then apply the log. If float then use lambda equal to float.</span>
+<span class="sd">    remove_bias : bool, optional</span>
+<span class="sd">        Remove bias from forecast values and fitted values by enforcing</span>
+<span class="sd">        that the average residual is equal to zero.</span>
+<span class="sd">    use_basinhopping : bool, optional</span>
+<span class="sd">        Using Basin Hopping optimizer to find optimal values</span>
+<span class="sd">    check_input : bool, optional (default=True)</span>
+<span class="sd">        - If True, input are checked.</span>
+<span class="sd">        - If False, input are not checked and assumed correct. Use with caution.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] Hyndman, Rob J., and George Athanasopoulos. Forecasting: principles</span>
+<span class="sd">        and practice. OTexts, 2014.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">damped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seasonal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seasonal_periods</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">smoothing_level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">smoothing_slope</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">smoothing_seasonal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">damping_slope</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">use_boxcox</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">remove_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_basinhopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># Model params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trend</span> <span class="o">=</span> <span class="n">trend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">damped</span> <span class="o">=</span> <span class="n">damped</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seasonal</span> <span class="o">=</span> <span class="n">seasonal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seasonal_periods</span> <span class="o">=</span> <span class="n">seasonal_periods</span>
+
+        <span class="c1"># Fit params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_level</span> <span class="o">=</span> <span class="n">smoothing_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimized</span> <span class="o">=</span> <span class="n">optimized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_slope</span> <span class="o">=</span> <span class="n">smoothing_slope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smooting_seasonal</span> <span class="o">=</span> <span class="n">smoothing_seasonal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">damping_slope</span> <span class="o">=</span> <span class="n">damping_slope</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_boxcox</span> <span class="o">=</span> <span class="n">use_boxcox</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_bias</span> <span class="o">=</span> <span class="n">remove_bias</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_basinhopping</span> <span class="o">=</span> <span class="n">use_basinhopping</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ExpSmoothingForecaster</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">check_input</span><span class="o">=</span><span class="n">check_input</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal fit.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Target time series to which to fit the forecaster.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : returns an instance of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Unnest series.</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Fit forecaster.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">ExponentialSmoothing</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">trend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trend</span><span class="p">,</span> <span class="n">damped</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">damped</span><span class="p">,</span> <span class="n">seasonal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seasonal</span><span class="p">,</span>
+                                              <span class="n">seasonal_periods</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seasonal_periods</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">smoothing_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">smoothing_level</span><span class="p">,</span> <span class="n">optimized</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimized</span><span class="p">,</span>
+                                                    <span class="n">smoothing_slope</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">smoothing_slope</span><span class="p">,</span>
+                                                    <span class="n">smoothing_seasonal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">smooting_seasonal</span><span class="p">,</span>
+                                                    <span class="n">damping_slope</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">damping_slope</span><span class="p">,</span>
+                                                    <span class="n">use_boxcox</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_boxcox</span><span class="p">,</span> <span class="n">remove_bias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">remove_bias</span><span class="p">,</span>
+                                                    <span class="n">use_basinhopping</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_basinhopping</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="DummyForecaster"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.forecasters.html#sktime.forecasters.forecasters.DummyForecaster">[docs]</a><span class="k">class</span> <span class="nc">DummyForecaster</span><span class="p">(</span><span class="n">BaseSingleSeriesForecaster</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dummy forecaster for naive forecasting approaches.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    strategy : str{&#39;mean&#39;, &#39;last&#39;, &#39;linear&#39;}, optional (default=&#39;last&#39;)</span>
+<span class="sd">        Naive forecasting strategy</span>
+<span class="sd">    check_input : bool, optional (default=True)</span>
+<span class="sd">        - If True, input are checked.</span>
+<span class="sd">        - If False, input are not checked and assumed correct. Use with caution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">check_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="n">allowed_strategies</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">)</span>  <span class="c1"># seasonal_last</span>
+        <span class="k">if</span> <span class="n">strategy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_strategies</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Unknown strategy: </span><span class="si">{strategy}</span><span class="s1">, expected one of </span><span class="si">{allowed_strategies}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="n">strategy</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DummyForecaster</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">check_input</span><span class="o">=</span><span class="n">check_input</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal fit.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Target time series to which to fit the forecaster.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : returns an instance of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Unnest series.</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Fit estimator.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">ExponentialSmoothing</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">smoothing_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="s1">&#39;last&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">ExponentialSmoothing</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">smoothing_level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">SARIMAX</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">trend</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="EnsembleForecaster"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.forecasters.html#sktime.forecasters.forecasters.EnsembleForecaster">[docs]</a><span class="k">class</span> <span class="nc">EnsembleForecaster</span><span class="p">(</span><span class="n">BaseForecaster</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ensemble of forecasters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    estimators : list of (str, estimator) tuples</span>
+<span class="sd">        List of (name, estimator) tuples.</span>
+<span class="sd">    weights : array-like, shape = [n_estimators], optional (default=None)</span>
+<span class="sd">        Sequence of weights (float or int) to weight the occurrences of predicted values before averaging.</span>
+<span class="sd">        Uses uniform weights if None.</span>
+<span class="sd">    check_input : bool, optional (default=True)</span>
+<span class="sd">        - If True, input are checked.</span>
+<span class="sd">        - If False, input are not checked and assumed correct. Use with caution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: experimental, major functionality not implemented (input checks, params interface, exogenous variables)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimators</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># TODO add input checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span> <span class="o">=</span> <span class="n">estimators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitted_estimators_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EnsembleForecaster</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">check_input</span><span class="o">=</span><span class="n">check_input</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal fit.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Target time series to which to fit the forecaster.</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that</span>
+<span class="sd">            if an ``ARIMA`` is fit on exogenous features, it must also be provided</span>
+<span class="sd">            exogenous features for making predictions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : returns an instance of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimators</span><span class="p">:</span>
+            <span class="c1"># TODO implement set/get params interface</span>
+            <span class="c1"># estimator.set_params(**{&quot;check_input&quot;: False})</span>
+            <span class="n">fitted_estimator</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fitted_estimators_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fitted_estimator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal predict using fitted estimator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fh : array-like, optional (default=None)</span>
+<span class="sd">            The forecasting horizon with the steps ahead to to predict. Default is one-step ahead forecast,</span>
+<span class="sd">            i.e. np.array([1])</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that if</span>
+<span class="sd">            provided, the forecaster must also have been fitted on the exogenous</span>
+<span class="sd">            features.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Predictions : pandas.Series, shape=(len(fh),)</span>
+<span class="sd">            Returns series of predicted values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO pass X only to estimators where the predict method accepts X, currenlty X is ignored</span>
+
+        <span class="c1"># Forecast all periods from start to end of pred horizon, but only return given time points in pred horizon</span>
+        <span class="n">fh_idx</span> <span class="o">=</span> <span class="n">fh</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+        <span class="c1"># Iterate over estimators</span>
+        <span class="n">y_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitted_estimators_</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">fh</span><span class="p">)))</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitted_estimators_</span><span class="p">):</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">fh</span><span class="o">=</span><span class="n">fh</span><span class="p">)</span>
+            <span class="n">y_preds</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">y_pred</span>
+            <span class="n">indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="c1"># Check if all predicted horizons are identical</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">indexes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indexes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Predicted horizons from estimators do not match&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Average predictions over estimators</span>
+        <span class="n">avg_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+        <span class="c1"># Return average predictions with index</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">y_preds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">y_preds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">avg_preds</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EnsembleForecaster.get_params"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.forecasters.html#sktime.forecasters.forecasters.EnsembleForecaster.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># TODO fix get and set params interface following sklearn double underscore convention</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EnsembleForecaster.set_params"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.forecasters.html#sktime.forecasters.forecasters.EnsembleForecaster.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

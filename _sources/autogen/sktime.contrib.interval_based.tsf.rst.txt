@@ -1,0 +1,7 @@
+sktime.contrib.interval\_based.tsf module
+=========================================
+
+.. automodule:: sktime.contrib.interval_based.tsf
+    :members:
+    :undoc-members:
+    :show-inheritance:

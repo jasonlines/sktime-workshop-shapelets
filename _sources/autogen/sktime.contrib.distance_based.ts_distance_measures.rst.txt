@@ -1,0 +1,7 @@
+sktime.contrib.distance\_based.ts\_distance\_measures module
+============================================================
+
+.. automodule:: sktime.contrib.distance_based.ts_distance_measures
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,16 @@
+sktime.forecasters package
+==========================
+
+.. automodule:: sktime.forecasters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.forecasters.base
+   sktime.forecasters.forecasters
+

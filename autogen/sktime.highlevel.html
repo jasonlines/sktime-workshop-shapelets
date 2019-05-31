@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.highlevel module &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sktime.model_selection module" href="sktime.model_selection.html" />
+    <link rel="prev" title="sktime.transformers.shapelets module" href="sktime.transformers.shapelets.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sktime.html">sktime package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sktime.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="sktime.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">sktime.highlevel module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.model_selection.html">sktime.model_selection module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.pipeline.html">sktime.pipeline module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sktime.html">sktime package</a> &raquo;</li>
+        
+      <li>sktime.highlevel module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autogen/sktime.highlevel.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sktime.highlevel">
+<span id="sktime-highlevel-module"></span><h1>sktime.highlevel module<a class="headerlink" href="#module-sktime.highlevel" title="Permalink to this headline">¶</a></h1>
+<p>Unified high-level interface for various time series related learning tasks.</p>
+<dl class="class">
+<dt id="sktime.highlevel.TSCTask">
+<em class="property">class </em><code class="descclassname">sktime.highlevel.</code><code class="descname">TSCTask</code><span class="sig-paren">(</span><em>target</em>, <em>features=None</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#TSCTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.TSCTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.highlevel.BaseTask</span></code></p>
+<p>Time series classification task.</p>
+<p>A task encapsulates metadata information such as the feature and target variable
+to which to fit the data to and any additional necessary instructions on how
+to fit and predict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The column name for the target variable to be predicted.</p></li>
+<li><p><strong>features</strong> (<em>list of str</em><em>, </em><em>optinal</em><em> (</em><em>default=None</em><em>)</em>) – The column name(s) for the feature variable. If None, every column apart from target will be used as a feature.</p></li>
+<li><p><strong>metadata</strong> (<em>pandas.DataFrame</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Contains the metadata that the task is expected to work with.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.highlevel.TSRTask">
+<em class="property">class </em><code class="descclassname">sktime.highlevel.</code><code class="descname">TSRTask</code><span class="sig-paren">(</span><em>target</em>, <em>features=None</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#TSRTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.TSRTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.highlevel.BaseTask</span></code></p>
+<p>Time series regression task.</p>
+<p>A task encapsulates metadata information such as the feature and target variable
+to which to fit the data to and any additional necessary instructions on how
+to fit and predict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The column name for the target variable to be predicted.</p></li>
+<li><p><strong>features</strong> (<em>list of str</em><em>, </em><em>optinal</em><em> (</em><em>default=None</em><em>)</em>) – The column name(s) for the feature variable. If None, every column apart from target will be used as a feature.</p></li>
+<li><p><strong>metadata</strong> (<em>pandas.DataFrame</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Contains the metadata that the task is expected to work with.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.highlevel.ForecastingTask">
+<em class="property">class </em><code class="descclassname">sktime.highlevel.</code><code class="descname">ForecastingTask</code><span class="sig-paren">(</span><em>target</em>, <em>fh=None</em>, <em>features=None</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#ForecastingTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.ForecastingTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.highlevel.BaseTask</span></code></p>
+<p>Time series forecasting task.</p>
+<p>A task encapsulates metadata information such as the feature and target
+variable which to fit the data to and additional necessary instructions on how to fit and predict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The column name for the target variable to be predicted.</p></li>
+<li><p><strong>features</strong> (<em>list of str</em><em>, </em><em>optional</em><em>, </em><em>(</em><em>default=None</em><em>)</em>) – The column name(s) for the exogenous feature variable. If None, every column apart from target will be used as
+a feature.</p></li>
+<li><p><strong>metadata</strong> (<em>pandas.DataFrame</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Contains the metadata that the task is expected to work with.</p></li>
+<li><p><strong>fh</strong> (<em>array-like</em><em>  or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em><em>, </em><em>(</em><em>default=None</em><em>)</em>) – Single step ahead or array of steps ahead to forecast.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="sktime.highlevel.ForecastingTask.fh">
+<code class="descname">fh</code><a class="headerlink" href="#sktime.highlevel.ForecastingTask.fh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes attribute read-only.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.highlevel.TSCStrategy">
+<em class="property">class </em><code class="descclassname">sktime.highlevel.</code><code class="descname">TSCStrategy</code><span class="sig-paren">(</span><em>estimator</em>, <em>name=None</em>, <em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#TSCStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.TSCStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.highlevel.BaseSupervisedLearningStrategy</span></code></p>
+<p>Strategy for time series classification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimator</strong> (<em>an estimator</em>) – Low-level estimator used in strategy.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Name of strategy. If None, class name of estimator is used.</p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.highlevel.TSRStrategy">
+<em class="property">class </em><code class="descclassname">sktime.highlevel.</code><code class="descname">TSRStrategy</code><span class="sig-paren">(</span><em>estimator</em>, <em>name=None</em>, <em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#TSRStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.TSRStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.highlevel.BaseSupervisedLearningStrategy</span></code></p>
+<p>Strategy for time series regression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimator</strong> (<em>an estimator</em>) – Low-level estimator used in strategy.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Name of strategy. If None, class name of estimator is used.</p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.highlevel.ForecastingStrategy">
+<em class="property">class </em><code class="descclassname">sktime.highlevel.</code><code class="descname">ForecastingStrategy</code><span class="sig-paren">(</span><em>estimator</em>, <em>name=None</em>, <em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#ForecastingStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.ForecastingStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.highlevel.BaseStrategy</span></code></p>
+<p>Strategy for time series forecasting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimator</strong> (<em>an estimator</em>) – Low-level estimator</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Name of strategy. If None, class name of estimator is used.</p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="sktime.highlevel.ForecastingStrategy.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#ForecastingStrategy.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.ForecastingStrategy.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas.DataFrame</em><em>, </em><em>shape=</em><em>[</em><em>n_obs</em><em>, </em><em>n_vars</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – An optional 2-d dataframe of exogenous variables. If provided, these
+variables are used as additional features in the regression
+operation. This should not include a constant or trend. Note that if
+provided, the forecaster must also have been fitted on the exogenous
+features.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>y_pred</strong> – Series of predicted values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.highlevel.ForecastingStrategy.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#ForecastingStrategy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.ForecastingStrategy.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update forecasts using new data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas.DataFrame</em>) – Dataframe with feature and target variables as specified in task.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>self</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>an instance of the self</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.highlevel.Forecasting2TSRReductionStrategy">
+<em class="property">class </em><code class="descclassname">sktime.highlevel.</code><code class="descname">Forecasting2TSRReductionStrategy</code><span class="sig-paren">(</span><em>estimator</em>, <em>window_length=None</em>, <em>name=None</em>, <em>check_input=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#Forecasting2TSRReductionStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.Forecasting2TSRReductionStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.highlevel.BaseStrategy</span></code></p>
+<p>Forecasting to time series regression reduction strategy.</p>
+<p>Strategy to reduce a forecasting problem to a time series regression
+problem using a rolling window approach</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>estimator</strong> (<em>an estimator</em>) – Time series regressor.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – Window length of rolling window approach.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – </p></li>
+<li><p><strong>check_input</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=True</em><em>)</em>) – <ul>
+<li><p>If True, input are checked.</p></li>
+<li><p>If False, input are not checked and assumed correct. Use with caution.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="sktime.highlevel.Forecasting2TSRReductionStrategy.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/highlevel.html#Forecasting2TSRReductionStrategy.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.highlevel.Forecasting2TSRReductionStrategy.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas.DataFrame</em><em>, </em><em>shape=</em><em>[</em><em>n_obs</em><em>, </em><em>n_vars</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>default=None</em><em>)</em>) – An optional 2-d dataframe of exogenous variables. If provided, these
+variables are used as additional features in the regression
+operation. This should not include a constant or trend. Note that if
+provided, the forecaster must also have been fitted on the exogenous
+features.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>y_pred</strong> – Series of predicted values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sktime.model_selection.html" class="btn btn-neutral float-right" title="sktime.model_selection module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sktime.transformers.shapelets.html" class="btn btn-neutral float-left" title="sktime.transformers.shapelets module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+sktime package
+==============
+
+.. automodule:: sktime
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    sktime.classifiers
+    sktime.contrib
+    sktime.datasets
+    sktime.distances
+    sktime.experiments
+    sktime.forecasters
+    sktime.regressors
+    sktime.transformers
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.highlevel
+   sktime.model_selection
+   sktime.pipeline
+

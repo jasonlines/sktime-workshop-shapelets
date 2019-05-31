@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.contrib.experiments &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.contrib.experiments</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.contrib.experiments</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="c1"># must be done before numpy import!!</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="c1"># must be done before numpy import!!</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="c1"># must be done before numpy import!!</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">preprocessing</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">cross_val_predict</span><span class="p">,</span> <span class="n">train_test_split</span>
+
+<span class="kn">import</span> <span class="nn">sktime.classifiers.ensemble</span> <span class="k">as</span> <span class="nn">ensemble</span>
+<span class="kn">import</span> <span class="nn">sktime.contrib.dictionary_based.boss_ensemble</span> <span class="k">as</span> <span class="nn">db</span>
+<span class="kn">import</span> <span class="nn">sktime.contrib.frequency_based.rise</span> <span class="k">as</span> <span class="nn">fb</span>
+<span class="kn">import</span> <span class="nn">sktime.contrib.interval_based.tsf</span> <span class="k">as</span> <span class="nn">ib</span>
+<span class="kn">from</span> <span class="nn">sktime.classifiers.proximity</span> <span class="k">import</span> <span class="n">ProximityForest</span>
+<span class="kn">from</span> <span class="nn">sktime.utils.load_data</span> <span class="k">import</span> <span class="n">load_from_tsfile_to_dataframe</span> <span class="k">as</span> <span class="n">load_ts</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Anthony Bagnall&quot;</span>
+
+<span class="sd">&quot;&quot;&quot; Prototype mechanism for testing classifiers on the UCR format. This mirrors the mechanism use in Java, </span>
+<span class="sd">https://github.com/TonyBagnall/uea-tsc/tree/master/src/main/java/experiments</span>
+<span class="sd">but is not yet as engineered. However, if you generate results using the method recommended here, they can be directly</span>
+<span class="sd">and automatically compared to the results generated in java</span>
+
+<span class="sd">Will have both low level version and high level orchestration version soon.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;GunPoint&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ItalyPowerDemand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ArrowHead&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Coffee&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Adiac&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Beef&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BeetleFly&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BirdChicken&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Car&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CBF&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ChlorineConcentration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CinCECGTorso&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Computers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CricketX&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CricketY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CricketZ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DiatomSizeReduction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DistalPhalanxOutlineCorrect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DistalPhalanxOutlineAgeGroup&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DistalPhalanxTW&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Earthquakes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ECG200&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ECG5000&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ECGFiveDays&quot;</span><span class="p">,</span>
+<span class="c1">#    &quot;ElectricDevices&quot;,</span>
+    <span class="s2">&quot;FaceAll&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FaceFour&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FacesUCR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FiftyWords&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Fish&quot;</span><span class="p">,</span>
+<span class="c1">#    &quot;FordA&quot;,</span>
+<span class="c1">#    &quot;FordB&quot;,</span>
+    <span class="s2">&quot;Ham&quot;</span><span class="p">,</span>
+<span class="c1">#    &quot;HandOutlines&quot;,</span>
+    <span class="s2">&quot;Haptics&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Herring&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;InlineSkate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;InsectWingbeatSound&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LargeKitchenAppliances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Lightning2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Lightning7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Mallat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Meat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MedicalImages&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MiddlePhalanxOutlineCorrect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MiddlePhalanxOutlineAgeGroup&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MiddlePhalanxTW&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MoteStrain&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NonInvasiveFetalECGThorax1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NonInvasiveFetalECGThorax2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OliveOil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OSULeaf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PhalangesOutlinesCorrect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Phoneme&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Plane&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ProximalPhalanxOutlineCorrect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ProximalPhalanxOutlineAgeGroup&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ProximalPhalanxTW&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RefrigerationDevices&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ScreenType&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ShapeletSim&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ShapesAll&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SmallKitchenAppliances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SonyAIBORobotSurface1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SonyAIBORobotSurface2&quot;</span><span class="p">,</span>
+<span class="c1">#    &quot;StarlightCurves&quot;,</span>
+    <span class="s2">&quot;Strawberry&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SwedishLeaf&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Symbols&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SyntheticControl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ToeSegmentation1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ToeSegmentation2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Trace&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TwoLeadECG&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TwoPatterns&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UWaveGestureLibraryX&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UWaveGestureLibraryY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UWaveGestureLibraryZ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UWaveGestureLibraryAll&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wafer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WordSynonyms&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Worms&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WormsTwoClass&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Yoga&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+
+
+<div class="viewcode-block" id="set_classifier"><a class="viewcode-back" href="../../../autogen/sktime.contrib.experiments.html#sktime.contrib.experiments.set_classifier">[docs]</a><span class="k">def</span> <span class="nf">set_classifier</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">resampleId</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Basic way of determining the classifier to build. To differentiate settings just and another elif. So, for example, if</span>
+<span class="sd">    you wanted tuned TSF, you just pass TuneTSF and set up the tuning mechanism in the elif.</span>
+<span class="sd">    This may well get superceded, it is just how e have always done it</span>
+<span class="sd">    :param cls: String indicating which classifier you want</span>
+<span class="sd">    :return: A classifier.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;pf&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ProximityForest</span><span class="p">(</span><span class="n">rand</span> <span class="o">=</span> <span class="n">resampleId</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">cls</span> <span class="o">==</span> <span class="s1">&#39;RISE&#39;</span> <span class="ow">or</span> <span class="bp">cls</span> <span class="o">==</span> <span class="s1">&#39;rise&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fb</span><span class="o">.</span><span class="n">RandomIntervalSpectralForest</span><span class="p">(</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">resampleId</span><span class="p">)</span>
+    <span class="k">elif</span>  <span class="bp">cls</span> <span class="o">==</span> <span class="s1">&#39;TSF&#39;</span> <span class="ow">or</span> <span class="bp">cls</span> <span class="o">==</span> <span class="s1">&#39;tsf&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ib</span><span class="o">.</span><span class="n">TimeSeriesForest</span><span class="p">(</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">resampleId</span><span class="p">)</span>
+    <span class="k">elif</span>  <span class="bp">cls</span> <span class="o">==</span> <span class="s1">&#39;BOSS&#39;</span> <span class="ow">or</span> <span class="bp">cls</span> <span class="o">==</span> <span class="s1">&#39;boss&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">BOSSEnsemble</span><span class="p">()</span>
+<span class="c1">#    elif classifier == &#39;EE&#39; or classifier == &#39;ElasticEnsemble&#39;:</span>
+<span class="c1">#        return dist.ElasticEnsemble()</span>
+    <span class="k">elif</span> <span class="bp">cls</span> <span class="o">==</span> <span class="s1">&#39;TSF_Markus&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">TimeSeriesForestClassifier</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;UNKNOWN CLASSIFIER&#39;</span></div>
+
+
+<div class="viewcode-block" id="run_experiment"><a class="viewcode-back" href="../../../autogen/sktime.contrib.experiments.html#sktime.contrib.experiments.run_experiment">[docs]</a><span class="k">def</span> <span class="nf">run_experiment</span><span class="p">(</span><span class="n">problem_path</span><span class="p">,</span> <span class="n">results_path</span><span class="p">,</span> <span class="n">cls_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">resampleID</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;.ts&quot;</span><span class="p">,</span> <span class="n">train_file</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Method to run a basic experiment and write the results to files called testFold&lt;resampleID&gt;.csv and, if required,</span>
+<span class="sd">    trainFold&lt;resampleID&gt;.csv.</span>
+<span class="sd">    :param problem_path: Location of problem files, full path.</span>
+<span class="sd">    :param results_path: Location of where to write results. Any required directories will be created</span>
+<span class="sd">    :param cls_name: determines which classifier to use, as defined in set_classifier. This assumes predict_proba is</span>
+<span class="sd">    implemented, to avoid predicting twice. May break some classifiers though</span>
+<span class="sd">    :param dataset: Name of problem. Files must be  &lt;problem_path&gt;/&lt;dataset&gt;/&lt;dataset&gt;+&quot;_TRAIN&quot;+format, same for &quot;_TEST&quot;</span>
+<span class="sd">    :param resampleID: Seed for resampling. If set to 0, the default train/test split from file is used. Also used in output file name.</span>
+<span class="sd">    :param overwrite: if set to False, this will only build results if there is not a result file already present. If</span>
+<span class="sd">    True, it will overwrite anything already there</span>
+<span class="sd">    :param format: Valid formats are &quot;.ts&quot;, &quot;.arff&quot; and &quot;.long&quot;. For more info on format, see</span>
+<span class="sd">    https://github.com/alan-turing-institute/sktime/blob/master/examples/Loading%20Data%20Examples.ipynb</span>
+<span class="sd">    :param train_file: whether to generate train files or not. If true, it performs a 10xCV on the train and saves</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cls_name</span> <span class="o">=</span> <span class="n">cls_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">build_test</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">results_path</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">cls_name</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/Predictions/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">+</span><span class="s2">&quot;/testFold&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">resampleID</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.csv&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">full_path</span><span class="o">+</span><span class="s2">&quot; Already exists and overwrite set to false, not building Test&quot;</span><span class="p">)</span>
+            <span class="n">build_test</span><span class="o">=</span><span class="kc">False</span>
+        <span class="k">if</span> <span class="n">train_file</span><span class="p">:</span>
+            <span class="n">full_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">results_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cls_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/Predictions/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/trainFold&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="n">resampleID</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">full_path</span> <span class="o">+</span> <span class="s2">&quot; Already exists and overwrite set to false, not building Train&quot;</span><span class="p">)</span>
+                <span class="n">train_file</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">train_file</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">build_test</span> <span class="o">==</span><span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span>
+
+    <span class="c1"># TO DO: Automatically differentiate between problem types, currently only works with .ts</span>
+    <span class="n">trainX</span><span class="p">,</span> <span class="n">trainY</span> <span class="o">=</span> <span class="n">load_ts</span><span class="p">(</span><span class="n">problem_path</span> <span class="o">+</span> <span class="n">dataset</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">dataset</span> <span class="o">+</span> <span class="s1">&#39;_TRAIN&#39;</span> <span class="o">+</span> <span class="nb">format</span><span class="p">)</span>
+    <span class="n">testX</span><span class="p">,</span> <span class="n">testY</span> <span class="o">=</span> <span class="n">load_ts</span><span class="p">(</span><span class="n">problem_path</span> <span class="o">+</span> <span class="n">dataset</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">dataset</span> <span class="o">+</span> <span class="s1">&#39;_TEST&#39;</span> <span class="o">+</span> <span class="nb">format</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resample</span> <span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">allLabels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">trainY</span><span class="p">,</span> <span class="n">testY</span><span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">allData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">trainX</span><span class="p">,</span> <span class="n">testX</span><span class="p">])</span>
+        <span class="n">train_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trainY</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trainY</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">testY</span><span class="p">))</span>
+        <span class="n">trainX</span><span class="p">,</span> <span class="n">testX</span><span class="p">,</span> <span class="n">trainY</span><span class="p">,</span> <span class="n">testY</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">allData</span><span class="p">,</span> <span class="n">allLabels</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">train_size</span><span class="p">,</span>
+                                                                       <span class="n">random_state</span><span class="o">=</span><span class="n">resample</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                                       <span class="n">stratify</span><span class="o">=</span><span class="n">allLabels</span><span class="p">)</span>
+
+
+    <span class="n">le</span> <span class="o">=</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">LabelEncoder</span><span class="p">()</span>
+    <span class="n">le</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">trainY</span><span class="p">)</span>
+    <span class="n">trainY</span> <span class="o">=</span> <span class="n">le</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">trainY</span><span class="p">)</span>
+    <span class="n">testY</span> <span class="o">=</span> <span class="n">le</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">testY</span><span class="p">)</span>
+    <span class="n">classifier</span> <span class="o">=</span> <span class="n">set_classifier</span><span class="p">(</span><span class="n">cls_name</span><span class="p">,</span> <span class="n">resampleID</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cls_name</span> <span class="o">+</span> <span class="s2">&quot; on &quot;</span> <span class="o">+</span> <span class="n">dataset</span> <span class="o">+</span> <span class="s2">&quot; resample number &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resampleID</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">build_test</span><span class="p">:</span>
+        <span class="c1"># TO DO : use sklearn CV</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">trainX</span><span class="p">,</span><span class="n">trainY</span><span class="p">)</span>
+        <span class="n">build_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span><span class="o">-</span><span class="n">start</span>
+        <span class="n">start</span> <span class="o">=</span>  <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">testX</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">test_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span><span class="o">-</span><span class="n">start</span>
+        <span class="n">ac</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">testY</span><span class="p">,</span> <span class="n">preds</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cls_name</span> <span class="o">+</span> <span class="s2">&quot; on &quot;</span> <span class="o">+</span> <span class="n">dataset</span> <span class="o">+</span> <span class="s2">&quot; resample number &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resampleID</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; test acc: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>
+              <span class="o">+</span> <span class="s1">&#39; time: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">test_time</span><span class="p">))</span>
+        <span class="c1">#        print(str(classifier.findEnsembleTrainAcc(trainX, trainY)))</span>
+        <span class="n">second</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
+        <span class="n">third</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">build_time</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">test_time</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,-1,-1,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">))</span><span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">write_results_to_uea_format</span><span class="p">(</span><span class="n">second_line</span><span class="o">=</span><span class="n">second</span><span class="p">,</span> <span class="n">third_line</span><span class="o">=</span><span class="n">third</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">results_path</span><span class="p">,</span> <span class="n">classifier_name</span><span class="o">=</span><span class="n">cls_name</span><span class="p">,</span> <span class="n">resample_seed</span><span class="o">=</span> <span class="n">resampleID</span><span class="p">,</span>
+                                <span class="n">predicted_class_vals</span><span class="o">=</span><span class="n">preds</span><span class="p">,</span> <span class="n">actual_probas</span><span class="o">=</span><span class="n">probs</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">actual_class_vals</span><span class="o">=</span><span class="n">testY</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s1">&#39;TEST&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">train_file</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">build_test</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span><span class="s2">&quot;get_train_probs&quot;</span><span class="p">):</span>    <span class="c1">#Normally Can only do this if test has been built ... well not necessarily true, but will do for now</span>
+            <span class="n">train_probs</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">get_train_probs</span><span class="p">(</span><span class="n">trainX</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">train_probs</span> <span class="o">=</span> <span class="n">cross_val_predict</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">trainX</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">trainY</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict_proba&#39;</span><span class="p">)</span>
+        <span class="n">train_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="n">train_preds</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">train_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">train_acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">trainY</span><span class="p">,</span><span class="n">train_preds</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cls_name</span> <span class="o">+</span> <span class="s2">&quot; on &quot;</span> <span class="o">+</span> <span class="n">dataset</span> <span class="o">+</span> <span class="s2">&quot; resample number &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resampleID</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; train acc: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">train_acc</span><span class="p">)</span>
+              <span class="o">+</span> <span class="s1">&#39; time: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">train_time</span><span class="p">))</span>
+        <span class="n">second</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
+        <span class="n">third</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">train_acc</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">train_time</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,-1,-1,-1,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">write_results_to_uea_format</span><span class="p">(</span><span class="n">second_line</span><span class="o">=</span><span class="n">second</span><span class="p">,</span> <span class="n">third_line</span><span class="o">=</span><span class="n">third</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">results_path</span><span class="p">,</span> <span class="n">classifier_name</span><span class="o">=</span><span class="n">cls_name</span><span class="p">,</span> <span class="n">resample_seed</span><span class="o">=</span> <span class="n">resampleID</span><span class="p">,</span>
+                                    <span class="n">predicted_class_vals</span><span class="o">=</span><span class="n">train_preds</span><span class="p">,</span> <span class="n">actual_probas</span><span class="o">=</span><span class="n">train_probs</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">actual_class_vals</span><span class="o">=</span><span class="n">trainY</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s1">&#39;TRAIN&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_results_to_uea_format"><a class="viewcode-back" href="../../../autogen/sktime.contrib.experiments.html#sktime.contrib.experiments.write_results_to_uea_format">[docs]</a><span class="k">def</span> <span class="nf">write_results_to_uea_format</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">classifier_name</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">actual_class_vals</span><span class="p">,</span>
+                                <span class="n">predicted_class_vals</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s1">&#39;TEST&#39;</span><span class="p">,</span> <span class="n">resample_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">actual_probas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">second_line</span><span class="o">=</span><span class="s2">&quot;No Parameter Info&quot;</span><span class="p">,</span><span class="n">third_line</span><span class="o">=</span><span class="s2">&quot;N/A&quot;</span><span class="p">,</span><span class="n">class_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is very alpha and I will probably completely change the structure once train fold is sorted, as that internally</span>
+<span class="sd">    does all this I think!</span>
+<span class="sd">    Output mirrors that produced by this Java</span>
+<span class="sd">    https://github.com/TonyBagnall/uea-tsc/blob/master/src/main/java/experiments/Experiments.java</span>
+<span class="sd">    :param output_path:</span>
+<span class="sd">    :param classifier_name:</span>
+<span class="sd">    :param dataset_name:</span>
+<span class="sd">    :param actual_class_vals:</span>
+<span class="sd">    :param predicted_class_vals:</span>
+<span class="sd">    :param split:</span>
+<span class="sd">    :param resample_seed:</span>
+<span class="sd">    :param actual_probas:</span>
+<span class="sd">    :param second_line:</span>
+<span class="sd">    :param third_line:</span>
+<span class="sd">    :param class_labels:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual_class_vals</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_class_vals</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;The number of predicted class values is not the same as the number of actual class values&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">classifier_name</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/Predictions/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">os</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># raises os.error if path already exists</span>
+
+    <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s1">&#39;TRAIN&#39;</span> <span class="ow">or</span> <span class="n">split</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">train_or_test</span> <span class="o">=</span> <span class="s2">&quot;train&quot;</span>
+    <span class="k">elif</span> <span class="n">split</span> <span class="o">==</span> <span class="s1">&#39;TEST&#39;</span> <span class="ow">or</span> <span class="n">split</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+        <span class="n">train_or_test</span> <span class="o">=</span> <span class="s2">&quot;test&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown &#39;split&#39; value - should be TRAIN/train or TEST/test&quot;</span><span class="p">)</span>
+
+    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">classifier_name</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/Predictions/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span> <span class="o">+</span>
+                <span class="s2">&quot;/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">train_or_test</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;Fold&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">resample_seed</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="c1"># print(classifier_name+&quot; on &quot;+dataset_name+&quot; for resample &quot;+str(resample_seed)+&quot;   &quot;+train_or_test+&quot; data has line three &quot;+third_line)</span>
+    <span class="c1"># the first line of the output file is in the form of:</span>
+    <span class="c1"># &lt;classifierName&gt;,&lt;datasetName&gt;,&lt;train/test&gt;,&lt;Class Labels&gt;</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">classifier_name</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">train_or_test</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">resample_seed</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,MILLISECONDS,PREDICTIONS, Generated by experiments.py&quot;</span><span class="p">)</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># the second line of the output is free form and classifier-specific; usually this will record info</span>
+    <span class="c1"># such as build time, parameter options used, any constituent model names for ensembles, etc.</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">second_line</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># the third line of the file is the accuracy (should be between 0 and 1 inclusive). If this is a train</span>
+    <span class="c1"># output file then it will be a training estimate of the classifier on the training data only (e.g.</span>
+    <span class="c1"># 10-fold cv, leave-one-out cv, etc.). If this is a test output file, it should be the output</span>
+    <span class="c1"># of the estimator on the test data (likely trained on the training data for a-priori parameter optimisation)</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">third_line</span><span class="p">))</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+    <span class="c1"># from line 4 onwards each line should include the actual and predicted class labels (comma-separated). If</span>
+    <span class="c1"># present, for each case, the probabilities of predicting every class value for this case should also be</span>
+    <span class="c1"># appended to the line (a space is also included between the predicted value and the predict_proba). E.g.:</span>
+    <span class="c1">#</span>
+    <span class="c1"># if predict_proba data IS provided for case i:</span>
+    <span class="c1">#   actual_class_val[i], predicted_class_val[i],,prob_class_0[i],prob_class_1[i],...,prob_class_c[i]</span>
+    <span class="c1">#</span>
+    <span class="c1"># if predict_proba data IS NOT provided for case i:</span>
+    <span class="c1">#   actual_class_val[i], predicted_class_val[i]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_class_vals</span><span class="p">)):</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">actual_class_vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">predicted_class_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">actual_probas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">actual_probas</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">))</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Example simple usage, with arguments input via script or hard coded for testing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;experimenting...&#39;</span><span class="p">)</span>
+<span class="c1">#Input args -dp=${dataDir} -rp=${resultsDir} -cn=${classifier} -dn=${dataset} -f=\$LSB_JOBINDEX</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1">#cluster run, this is fragile</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">results_dir</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">classifier</span> <span class="o">=</span>  <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">resample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">tf</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span><span class="p">)</span>
+        <span class="n">run_experiment</span><span class="p">(</span><span class="n">problem_path</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">results_path</span><span class="o">=</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">cls_name</span><span class="o">=</span><span class="n">classifier</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+                       <span class="n">resampleID</span><span class="o">=</span><span class="n">resample</span><span class="p">,</span><span class="n">train_file</span><span class="o">=</span><span class="n">tf</span><span class="p">)</span>
+    <span class="k">else</span> <span class="p">:</span> <span class="c1">#Local run</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="s2">&quot;/scratch/datasets/&quot;</span>
+        <span class="n">results_dir</span> <span class="o">=</span> <span class="s2">&quot;/scratch/results&quot;</span>
+<span class="c1">#        data_dir = &quot;C:/Users/ajb/Dropbox/Turing Project/ExampleDataSets/&quot;</span>
+<span class="c1">#        results_dir = &quot;C:/Users/ajb/Dropbox/Turing Project/Results/&quot;</span>
+        <span class="n">classifier</span> <span class="o">=</span> <span class="s2">&quot;PF&quot;</span>
+        <span class="n">resample</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># for i in range(0, len(datasets)):</span>
+        <span class="c1">#     dataset = datasets[i]</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="s2">&quot;GunPoint&quot;</span>
+        <span class="n">tf</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">run_experiment</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">problem_path</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">results_path</span><span class="o">=</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">cls_name</span><span class="o">=</span><span class="n">classifier</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">resampleID</span><span class="o">=</span><span class="n">resample</span><span class="p">,</span><span class="n">train_file</span><span class="o">=</span><span class="n">tf</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

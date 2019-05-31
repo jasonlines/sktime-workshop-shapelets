@@ -1,0 +1,7 @@
+sktime.classifiers.proximity module
+===================================
+
+.. automodule:: sktime.classifiers.proximity
+    :members:
+    :undoc-members:
+    :show-inheritance:

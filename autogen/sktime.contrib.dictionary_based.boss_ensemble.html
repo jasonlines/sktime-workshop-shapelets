@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.contrib.dictionary_based.boss_ensemble module &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sktime.contrib.distance_based package" href="sktime.contrib.distance_based.html" />
+    <link rel="prev" title="sktime.contrib.dictionary_based package" href="sktime.contrib.dictionary_based.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sktime.html">sktime package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sktime.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sktime.classifiers.html">sktime.classifiers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sktime.contrib.html">sktime.contrib package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sktime.contrib.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sktime.contrib.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.datasets.html">sktime.datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.distances.html">sktime.distances package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.experiments.html">sktime.experiments package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.forecasters.html">sktime.forecasters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.regressors.html">sktime.regressors package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.transformers.html">sktime.transformers package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sktime.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sktime.html">sktime package</a> &raquo;</li>
+        
+          <li><a href="sktime.contrib.html">sktime.contrib package</a> &raquo;</li>
+        
+          <li><a href="sktime.contrib.dictionary_based.html">sktime.contrib.dictionary_based package</a> &raquo;</li>
+        
+      <li>sktime.contrib.dictionary_based.boss_ensemble module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autogen/sktime.contrib.dictionary_based.boss_ensemble.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sktime.contrib.dictionary_based.boss_ensemble">
+<span id="sktime-contrib-dictionary-based-boss-ensemble-module"></span><h1>sktime.contrib.dictionary_based.boss_ensemble module<a class="headerlink" href="#module-sktime.contrib.dictionary_based.boss_ensemble" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble">
+<em class="property">class </em><code class="descclassname">sktime.contrib.dictionary_based.boss_ensemble.</code><code class="descname">BOSSEnsemble</code><span class="sig-paren">(</span><em>randomised_ensemble=False, ensemble_size=100, random_state=None, dim_to_use=0, threshold=0.92, max_ensemble_size=250, word_lengths=[16, 14, 12, 10, 8], alphabet_size=4, min_window=10, norm_options=[True, False]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></p>
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.find_ensemble_train_acc">
+<code class="descname">find_ensemble_train_acc</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble.find_ensemble_train_acc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.find_ensemble_train_acc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Build an ensemble of BOSS classifiers from the training set (X, y), either through randomising over the para</dt><dd><p>space to make a fixed size ensemble quickly or by creating a variable size ensemble of those within a threshold
+of the best</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array-like</em><em> or </em><em>sparse matrix of shape =</em><em> [</em><em>n_samps</em><em>, </em><em>num_atts</em><em>]</em>) – The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</p></li>
+<li><p><strong>y</strong> (<em>array-like</em><em>, </em><em>shape =</em><em> [</em><em>n_samples</em><em>] or </em><em>[</em><em>n_samples</em><em>, </em><em>n_outputs</em><em>]</em>) – The class labels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>self</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.get_train_probs">
+<code class="descname">get_train_probs</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble.get_train_probs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.get_train_probs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.include_in_ensemble">
+<code class="descname">include_in_ensemble</code><span class="sig-paren">(</span><em>acc</em>, <em>maxAcc</em>, <em>minMaxAcc</em>, <em>size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble.include_in_ensemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.include_in_ensemble" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.worst_of_best">
+<code class="descname">worst_of_best</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSEnsemble.worst_of_best"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSEnsemble.worst_of_best" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual">
+<em class="property">class </em><code class="descclassname">sktime.contrib.dictionary_based.boss_ensemble.</code><code class="descname">BOSSIndividual</code><span class="sig-paren">(</span><em>window_size</em>, <em>word_length</em>, <em>alphabet_size</em>, <em>norm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Single Bag of SFA Symbols (BOSS) classifier</p>
+<p>Bag of SFA Symbols Ensemble: implementation of BOSS from Schaffer :
+&#64;article</p>
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.BOSSDistance">
+<code class="descname">BOSSDistance</code><span class="sig-paren">(</span><em>bagA</em>, <em>bagB</em>, <em>best_dist</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual.BOSSDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.BOSSDistance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.clean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.setWordLen">
+<code class="descname">setWordLen</code><span class="sig-paren">(</span><em>wordLen</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual.setWordLen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.setWordLen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.shortenBags">
+<code class="descname">shortenBags</code><span class="sig-paren">(</span><em>word_len</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual.shortenBags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.shortenBags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.train_predict">
+<code class="descname">train_predict</code><span class="sig-paren">(</span><em>train_num</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSIndividual.train_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSIndividual.train_predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform">
+<em class="property">class </em><code class="descclassname">sktime.contrib.dictionary_based.boss_ensemble.</code><code class="descname">BOSSTransform</code><span class="sig-paren">(</span><em>window_size</em>, <em>word_length</em>, <em>alphabet_size</em>, <em>norm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Boss Transform for a fixed set of parameters
+An internal class not to be used outside of the BOSS transform</p>
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.DFTunnormed">
+<code class="descname">DFTunnormed</code><span class="sig-paren">(</span><em>series</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.DFTunnormed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.DFTunnormed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.MCB">
+<code class="descname">MCB</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.MCB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.MCB" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> – the training data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.MFT">
+<code class="descname">MFT</code><span class="sig-paren">(</span><em>series</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.MFT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.MFT" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>series</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.addToBag">
+<code class="descname">addToBag</code><span class="sig-paren">(</span><em>bag</em>, <em>word</em>, <em>lastWord</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.addToBag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.addToBag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.calcIncrementalMeanStd">
+<code class="descname">calcIncrementalMeanStd</code><span class="sig-paren">(</span><em>series</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.calcIncrementalMeanStd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.calcIncrementalMeanStd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.createWord">
+<code class="descname">createWord</code><span class="sig-paren">(</span><em>dft</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.createWord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.createWord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.discrete_fourier_transform">
+<code class="descname">discrete_fourier_transform</code><span class="sig-paren">(</span><em>series</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.discrete_fourier_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.discrete_fourier_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a discrete fourier transform using standard O(n^2) transform
+if self.norm is True, then the first term of the DFT is ignored</p>
+<p>TO DO: Use a fast fourier transform
+Input
+——-
+X : The training input samples.  array-like or sparse matrix of shape = [n_samps, num_atts]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>1D array of fourier term, real_0,imag_0, real_1, imag_1 etc, length num_atts or</em></p></li>
+<li><p><em>num_atts-2 if if self.norm is True</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a histogram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array-like</em><em> or </em><em>sparse matrix of shape =</em><em> [</em><em>n_samps</em><em>, </em><em>num_atts</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>self</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.shorten_bags">
+<code class="descname">shorten_bags</code><span class="sig-paren">(</span><em>wordLen</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.shorten_bags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.shorten_bags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.transform_single">
+<code class="descname">transform_single</code><span class="sig-paren">(</span><em>series</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BOSSTransform.transform_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BOSSTransform.transform_single" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BitWord">
+<em class="property">class </em><code class="descclassname">sktime.contrib.dictionary_based.boss_ensemble.</code><code class="descname">BitWord</code><span class="sig-paren">(</span><em>word=0</em>, <em>length=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BitWord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BitWord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BitWord.push">
+<code class="descname">push</code><span class="sig-paren">(</span><em>letter</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BitWord.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BitWord.push" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BitWord.rightShift">
+<code class="descname">rightShift</code><span class="sig-paren">(</span><em>left</em>, <em>right</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BitWord.rightShift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BitWord.rightShift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BitWord.shorten">
+<code class="descname">shorten</code><span class="sig-paren">(</span><em>amount</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BitWord.shorten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BitWord.shorten" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="sktime.contrib.dictionary_based.boss_ensemble.BitWord.wordList">
+<code class="descname">wordList</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/contrib/dictionary_based/boss_ensemble.html#BitWord.wordList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.contrib.dictionary_based.boss_ensemble.BitWord.wordList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sktime.contrib.distance_based.html" class="btn btn-neutral float-right" title="sktime.contrib.distance_based package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sktime.contrib.dictionary_based.html" class="btn btn-neutral float-left" title="sktime.contrib.dictionary_based package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

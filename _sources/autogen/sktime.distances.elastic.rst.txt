@@ -1,0 +1,7 @@
+sktime.distances.elastic module
+===============================
+
+.. automodule:: sktime.distances.elastic
+    :members:
+    :undoc-members:
+    :show-inheritance:

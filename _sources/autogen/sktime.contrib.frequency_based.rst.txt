@@ -1,0 +1,15 @@
+sktime.contrib.frequency\_based package
+=======================================
+
+.. automodule:: sktime.contrib.frequency_based
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.contrib.frequency_based.rise
+

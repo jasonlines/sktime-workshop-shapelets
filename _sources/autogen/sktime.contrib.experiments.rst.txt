@@ -1,0 +1,7 @@
+sktime.contrib.experiments module
+=================================
+
+.. automodule:: sktime.contrib.experiments
+    :members:
+    :undoc-members:
+    :show-inheritance:

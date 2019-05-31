@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.forecasters.base &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.forecasters.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.forecasters.base</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">mean_squared_error</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="k">import</span> <span class="n">check_is_fitted</span>
+
+<span class="kn">from</span> <span class="nn">..utils.validation</span> <span class="k">import</span> <span class="n">validate_fh</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BaseForecaster&quot;</span><span class="p">,</span> <span class="s2">&quot;BaseSingleSeriesForecaster&quot;</span><span class="p">,</span> <span class="s2">&quot;BaseUpdateableForecaster&quot;</span><span class="p">]</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Markus Löning&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="BaseForecaster"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.base.html#sktime.forecasters.base.BaseForecaster">[docs]</a><span class="k">class</span> <span class="nc">BaseForecaster</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for forecasters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check_input : bool, optional (default=True)</span>
+<span class="sd">        - If True, input are checked.</span>
+<span class="sd">        - If False, input are not checked and assumed correct. Use with caution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_estimator_type</span> <span class="o">=</span> <span class="s2">&quot;forecaster&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span> <span class="o">=</span> <span class="n">check_input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="BaseForecaster.fit"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.base.html#sktime.forecasters.base.BaseForecaster.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit forecaster.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Target time series to which to fit the forecaster.</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that</span>
+<span class="sd">            if an ``ARIMA`` is fit on exogenous features, it must also be provided</span>
+<span class="sd">            exogenous features for making predictions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : returns an instance of self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_X_y</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># Keep index for predicting where forecasting horizon will be relative to y seen in fit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_y_index</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="c1"># Make interface compatible with estimators that only take y</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">X</span><span class="p">}</span>
+
+        <span class="c1"># Internal fit.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="BaseForecaster.predict"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.base.html#sktime.forecasters.base.BaseForecaster.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict using fitted estimator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fh : array-like, optional (default=None)</span>
+<span class="sd">            The forecasting horizon with the steps ahead to to predict. Default is one-step ahead forecast,</span>
+<span class="sd">            i.e. np.array([1])</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that if</span>
+<span class="sd">            provided, the forecaster must also have been fitted on the exogenous</span>
+<span class="sd">            features.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Predictions : pandas.Series, shape=(len(fh),)</span>
+<span class="sd">            Returns series of predicted values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_is_fitted&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_X</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># validate forecasting horizon</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="n">validate_fh</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+        <span class="c1"># make interface compatible with estimators that only take y</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">X</span><span class="p">}</span>
+
+        <span class="c1"># estimator specific implementation of fit method</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">fh</span><span class="o">=</span><span class="n">fh</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseForecaster.score"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.base.html#sktime.forecasters.base.BaseForecaster.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the root mean squared error on the given forecast horizon.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Target time series to which to fit the forecaster.</span>
+<span class="sd">        fh : array-like, optional (default=[1])</span>
+<span class="sd">            The forecasting horizon with the steps ahead to to predict.</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that</span>
+<span class="sd">            if an ``ARIMA`` is fit on exogenous features, it must also be provided</span>
+<span class="sd">            exogenous features for making predictions.</span>
+<span class="sd">        sample_weight : array-like, shape = [n_observations], optional</span>
+<span class="sd">            Sample weights.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        score : float</span>
+<span class="sd">            Mean squared error of self.predict(fh=fh, X=X) with respect to y.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># only check y here, X and fh will be checked during predict</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="c1"># Predict y_pred</span>
+        <span class="c1"># pass exogenous variable to predict only if given, as some forecasters may not accept X in predict</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">X</span><span class="p">}</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">fh</span><span class="o">=</span><span class="n">fh</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Unnest y_true</span>
+        <span class="n">y_true</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Check if passed true time series coincides with forecast horizon of predicted values</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">y_true</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Index of passed time series `y` does not match index of predicted time series; &quot;</span>
+                             <span class="n">f</span><span class="s2">&quot;make sure the forecasting horizon `fh` matches the time index of `y`&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">))</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_y_index</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to get (time) index of y used in fitting for later comparison</span>
+<span class="sd">        with forecast horizon</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">index</span>
+
+    <span class="k">def</span> <span class="nf">_validate_X_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to check input data for forecasting</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Time series to forecast.</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            Dataframe with exogenous data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO add more input checks for consistency of X and y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_X</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_y</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to check input data for forecasting</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Time series to forecast.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if pandas series</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;``y`` must be a pandas Series, but found: {type(y)}&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check if single row</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;``y`` must consist of a pandas Series with a single row, &#39;</span>
+                             <span class="n">f</span><span class="s1">&#39;but found: </span><span class="si">{y.shape[0]}</span><span class="s1"> rows&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check if contained time series is either pandas series or numpy array</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;``y`` must contain a pandas Series or numpy array, but found: {type(s)}.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_X</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to check input data for forecasting</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            Dataframe with exogenous data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;`X` must a pandas DataFrame, but found: {type(X)}&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;`X` must consist of a single row, but found: </span><span class="si">{X.shape[0]}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Check if index is the same for all columns.</span>
+
+            <span class="c1"># Get index from first row, can be either pd.Series or np.array.</span>
+            <span class="n">first_index</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;index&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># Series must contain at least 2 observations, otherwise should be primitive.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">first_index</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Time series must contain at least 2 observations, but found: &#39;</span>
+                                 <span class="n">f</span><span class="s1">&#39;{len(first_index)} observations in column: </span><span class="si">{X.columns[0]}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Compare with remaining columns</span>
+            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">],</span> <span class="s1">&#39;index&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">first_index</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Found time series with unequal index in column </span><span class="si">{col}</span><span class="s1">. &#39;</span>
+                                     <span class="n">f</span><span class="s1">&#39;Input time-series must have the same index.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_prepare_X</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to transform nested pandas DataFrame X into 2d numpy array as required by `statsmodels`</span>
+<span class="sd">        estimators.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame, shape = [1, n_variables]</span>
+<span class="sd">            Nested dataframe with series of shape [n_obs,] in cells</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy ndarray, shape = [n_obs, n_variables]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">X</span>
+
+        <span class="n">xl</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">xl</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xl</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_prepare_y</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to prepare y as required by `statsmodels` estimators.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series, shape = [1,]</span>
+<span class="sd">            Nested series with series of shape [n_obs,] in first cell</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.Series, shape = [n_obs,]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BaseUpdateableForecaster"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.base.html#sktime.forecasters.base.BaseUpdateableForecaster">[docs]</a><span class="k">class</span> <span class="nc">BaseUpdateableForecaster</span><span class="p">(</span><span class="n">BaseForecaster</span><span class="p">):</span>
+    <span class="c1"># TODO should that be a mixin class instead?</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for forecasters with update functionality.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check_input : bool, optional</span>
+<span class="sd">        - If True, input are checked.</span>
+<span class="sd">        - If False, input are not checked and assumed correct. Use with caution.</span>
+<span class="sd">        Default is True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseUpdateableForecaster</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">check_input</span><span class="o">=</span><span class="n">check_input</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_updated</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="BaseUpdateableForecaster.update"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.base.html#sktime.forecasters.base.BaseUpdateableForecaster.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update forecasts using new data via Kalman smoothing/filtering of</span>
+<span class="sd">        forecasts obtained from previously fitted forecaster.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : pandas.Series</span>
+<span class="sd">            Updated time series which to use for updating the previously fitted forecaster.</span>
+<span class="sd">        X : pandas.DataFrame, shape=[n_obs, n_vars], optional (default=None)</span>
+<span class="sd">            An optional 2-d dataframe of exogenous variables. If provided, these</span>
+<span class="sd">            variables are used as additional features in the regression</span>
+<span class="sd">            operation. This should not include a constant or trend. Note that</span>
+<span class="sd">            if an ``ARIMA`` is fit on exogenous features, it must also be provided</span>
+<span class="sd">            exogenous features for making predictions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : An instance of self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_is_fitted&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_input</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_X_y</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_y_update</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_updated</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate_y_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to check the ``y`` passed to update the estimator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO add input checks for X when updating</span>
+        <span class="c1"># TODO add additional input checks for update data, i.e. that update data is newer than data seen in fit</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_idx</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y_idx</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_idx</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Passed y does not match the initial y used for fitting&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseSingleSeriesForecaster"><a class="viewcode-back" href="../../../autogen/sktime.forecasters.base.html#sktime.forecasters.base.BaseSingleSeriesForecaster">[docs]</a><span class="k">class</span> <span class="nc">BaseSingleSeriesForecaster</span><span class="p">(</span><span class="n">BaseForecaster</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Classical forecaster which implements predict method for single-series/univariate fitted/updated classical</span>
+<span class="sd">    forecasting techniques without exogenous variables (X).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fh</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal predict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fh : array-like, optional (default=None)</span>
+<span class="sd">            The forecasting horizon with the steps ahead to to predict. Default is one-step ahead forecast,</span>
+<span class="sd">            i.e. np.array([1])</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_pred : pandas.Series</span>
+<span class="sd">            Returns series of predicted values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Convert step-ahead prediction horizon into zero-based index</span>
+        <span class="n">fh_idx</span> <span class="o">=</span> <span class="n">fh</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+        <span class="c1"># Predict fitted model with start and end points relative to start of train series</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_idx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">fh</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">fh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">fh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fitted_estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+
+        <span class="c1"># Forecast all periods from start to end of pred horizon, but only return given time points in pred horizon</span>
+        <span class="k">return</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">fh_idx</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

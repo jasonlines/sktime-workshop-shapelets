@@ -1,0 +1,625 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.classifiers.time_series_neighbors &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.classifiers.time_series_neighbors</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.classifiers.time_series_neighbors</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.extmath</span> <span class="k">import</span> <span class="n">weighted_mode</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors.classification</span> <span class="k">import</span> <span class="n">KNeighborsClassifier</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">distutils.version</span> <span class="k">import</span> <span class="n">LooseVersion</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">issparse</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">pairwise_distances_chunked</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">gen_even_slices</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="k">import</span> <span class="n">check_classification_targets</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="k">import</span> <span class="n">check_is_fitted</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span><span class="p">,</span> <span class="n">effective_n_jobs</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils._joblib</span> <span class="k">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">joblib_version</span>
+<span class="kn">from</span> <span class="nn">sklearn.exceptions</span> <span class="k">import</span> <span class="n">DataConversionWarning</span>
+<span class="kn">from</span> <span class="nn">sktime.distances.elastic_cython</span> <span class="k">import</span> <span class="n">dtw_distance</span><span class="p">,</span> <span class="n">wdtw_distance</span><span class="p">,</span> <span class="n">ddtw_distance</span><span class="p">,</span> <span class="n">wddtw_distance</span><span class="p">,</span> <span class="n">lcss_distance</span><span class="p">,</span> <span class="n">erp_distance</span><span class="p">,</span> <span class="n">msm_distance</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="k">import</span> <span class="n">check_array</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors.base</span> <span class="k">import</span> <span class="n">_check_weights</span><span class="p">,</span> <span class="n">_get_weights</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Please note that many aspects of this class are taken from scikit-learn&#39;s KNeighborsTimeSeriesClassifier </span>
+<span class="sd">class with necessary changes to enable use with time series classification data and distance measures.</span>
+
+<span class="sd">TO-DO: add a utility method to set keyword args for distance measure parameters (e.g. handle the parameter </span>
+<span class="sd">name(s) that are passed as metric_params automatically, depending on what distance measure is used in the </span>
+<span class="sd">classifier (e.g. know that it is w for dtw, c for msm, etc.). Also allow long-format specification for </span>
+<span class="sd">non-standard/user-defined measures </span>
+<span class="sd">e.g. set_distance_params(measure_type=None, param_values_to_set=None, param_names=None)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="KNeighborsTimeSeriesClassifier"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.time_series_neighbors.html#sktime.classifiers.time_series_neighbors.KNeighborsTimeSeriesClassifier">[docs]</a><span class="k">class</span> <span class="nc">KNeighborsTimeSeriesClassifier</span><span class="p">(</span><span class="n">KNeighborsClassifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An adapted version of the scikit-learn KNeighborsClassifier to work with time series data.</span>
+
+<span class="sd">    Necessary changes required for time series data:</span>
+<span class="sd">        -   calls to X.shape in kneighbors, predict and predict_proba.</span>
+<span class="sd">            In the base class, these methods contain:</span>
+<span class="sd">                n_samples, _ = X.shape</span>
+<span class="sd">            This however assumes that data must be 2d (a set of multivariate time series is 3d). Therefore these methods</span>
+<span class="sd">            needed to be overridden to change this call to the following to support 3d data:</span>
+<span class="sd">                n_samples = X.shape[0]</span>
+<span class="sd">        -   check array has been disabled. This method allows nd data via an argument in the method header. However, there</span>
+<span class="sd">            seems to be no way to set this in the classifier and allow it to propagate down to the method. Therefore, this</span>
+<span class="sd">            method has been temporarily disabled (and then re-enabled). It is unclear how to fix this issue without either</span>
+<span class="sd">            writing a new classifier from scratch or changing the scikit-learn implementation. TO-DO: find permanent</span>
+<span class="sd">            resolution to this issue (raise as an issue on sklearn GitHub?)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s1">&#39;uniform&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;brute&#39;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;dtw&#39;</span><span class="p">,</span> <span class="n">metric_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dim_to_use</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;dtw&#39;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">dtw_distance</span>
+        <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;ddtw&#39;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">ddtw_distance</span>
+        <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;wdtw&#39;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">wdtw_distance</span>
+        <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;wddtw&#39;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">wddtw_distance</span>
+        <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;lcss&#39;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">lcss_distance</span>
+        <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;erp&#39;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">erp_distance</span>
+        <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;msm&#39;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">msm_distance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised distance measure: &quot;</span><span class="o">+</span><span class="n">metric</span><span class="o">+</span><span class="s2">&quot;. Allowed values are names from [dtw,ddtw,wdtw,wddtw,lcss,erp,msm] or &quot;</span>
+                                                                          <span class="s2">&quot;please pass a callable distance measure into the constuctor directly.&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">n_neighbors</span><span class="o">=</span><span class="n">n_neighbors</span><span class="p">,</span>
+            <span class="n">algorithm</span><span class="o">=</span><span class="n">algorithm</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
+            <span class="n">metric_params</span><span class="o">=</span><span class="n">metric_params</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">_check_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span> <span class="o">=</span> <span class="n">dim_to_use</span>
+
+<div class="viewcode-block" id="KNeighborsTimeSeriesClassifier.fit"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.time_series_neighbors.html#sktime.classifiers.time_series_neighbors.KNeighborsTimeSeriesClassifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fit the model using X as training data and y as target values</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : sktime-format pandas dataframe with shape([n_cases,n_dimensions]),</span>
+<span class="sd">        or numpy ndarray with shape([n_cases,n_readings,n_dimensions])</span>
+
+<span class="sd">        y : {array-like, sparse matrix}</span>
+<span class="sd">            Target values of shape = [n_samples]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">check_data_sktime_tsc</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;A column-vector y was passed when a 1d array &quot;</span>
+                              <span class="s2">&quot;was expected. Please change the shape of y to &quot;</span>
+                              <span class="s2">&quot;(n_samples, ), for example using ravel().&quot;</span><span class="p">,</span>
+                              <span class="n">DataConversionWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs_2d_</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs_2d_</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">check_classification_targets</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="n">k</span><span class="p">],</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_2d_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span>
+        <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span> <span class="o">=</span> <span class="n">_check_array_ts</span><span class="o">.</span><span class="vm">__code__</span>
+        <span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="k">return</span> <span class="n">fx</span></div>
+
+<div class="viewcode-block" id="KNeighborsTimeSeriesClassifier.kneighbors"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.time_series_neighbors.html#sktime.classifiers.time_series_neighbors.KNeighborsTimeSeriesClassifier.kneighbors">[docs]</a>    <span class="k">def</span> <span class="nf">kneighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_distance</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Finds the K-neighbors of a point.</span>
+<span class="sd">        Returns indices of and distances to the neighbors of each point.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : sktime-format pandas dataframe with shape([n_cases,n_dimensions]),</span>
+<span class="sd">        or numpy ndarray with shape([n_cases,n_readings,n_dimensions])</span>
+
+<span class="sd">        y : {array-like, sparse matrix}</span>
+<span class="sd">            Target values of shape = [n_samples]</span>
+
+<span class="sd">        n_neighbors : int</span>
+<span class="sd">            Number of neighbors to get (default is the value</span>
+<span class="sd">            passed to the constructor).</span>
+
+<span class="sd">        return_distance : boolean, optional. Defaults to True.</span>
+<span class="sd">            If False, distances will not be returned</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dist : array</span>
+<span class="sd">            Array representing the lengths to points, only present if</span>
+<span class="sd">            return_distance=True</span>
+
+<span class="sd">        ind : array</span>
+<span class="sd">            Indices of the nearest points in the population matrix.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        In the following example, we construct a NeighborsClassifier</span>
+<span class="sd">        class from an array representing our data set and ask who&#39;s</span>
+<span class="sd">        the closest point to [1,1,1]</span>
+
+<span class="sd">        &gt;&gt;&gt; samples = [[0., 0., 0.], [0., .5, 0.], [1., 1., .5]]</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.neighbors import NearestNeighbors</span>
+<span class="sd">        &gt;&gt;&gt; neigh = NearestNeighbors(n_neighbors=1)</span>
+<span class="sd">        &gt;&gt;&gt; neigh.fit(samples) # doctest: +ELLIPSIS</span>
+<span class="sd">        NearestNeighbors(algorithm=&#39;auto&#39;, leaf_size=30, ...)</span>
+<span class="sd">        &gt;&gt;&gt; print(neigh.kneighbors([[1., 1., 1.]])) # doctest: +ELLIPSIS</span>
+<span class="sd">        (array([[0.5]]), array([[2]]))</span>
+
+<span class="sd">        As you can see, it returns [[0.5]], and [[2]], which means that the</span>
+<span class="sd">        element is at distance 0.5 and is the third element of samples</span>
+<span class="sd">        (indexes start at 0). You can also query for multiple points:</span>
+
+<span class="sd">        &gt;&gt;&gt; X = [[0., 1., 0.], [1., 0., 1.]]</span>
+<span class="sd">        &gt;&gt;&gt; neigh.kneighbors(X, return_distance=False) # doctest: +ELLIPSIS</span>
+<span class="sd">        array([[1],</span>
+<span class="sd">               [2]]...)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_data_sktime_tsc</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dim_to_use</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">)</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_fit_method&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">n_neighbors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_neighbors</span>
+        <span class="k">elif</span> <span class="n">n_neighbors</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Expected n_neighbors &gt; 0. Got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span>
+                <span class="n">n_neighbors</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">n_neighbors</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;n_neighbors does not take </span><span class="si">%s</span><span class="s2"> value, &quot;</span>
+                    <span class="s2">&quot;enter integer value&quot;</span> <span class="o">%</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">n_neighbors</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">query_is_train</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="s1">&#39;csr&#39;</span><span class="p">,</span> <span class="n">allow_nd</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_is_train</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_X</span>
+            <span class="c1"># Include an extra neighbor to account for the sample itself being</span>
+            <span class="c1"># returned, which is removed later</span>
+            <span class="n">n_neighbors</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">train_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">n_neighbors</span> <span class="o">&gt;</span> <span class="n">train_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Expected n_neighbors &lt;= n_samples, &quot;</span>
+                <span class="s2">&quot; but n_samples = </span><span class="si">%d</span><span class="s2">, n_neighbors = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">train_size</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sample_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">effective_n_jobs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_method</span> <span class="o">==</span> <span class="s1">&#39;brute&#39;</span><span class="p">:</span>
+
+            <span class="n">reduce_func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kneighbors_reduce_func</span><span class="p">,</span>
+                                  <span class="n">n_neighbors</span><span class="o">=</span><span class="n">n_neighbors</span><span class="p">,</span>
+                                  <span class="n">return_distance</span><span class="o">=</span><span class="n">return_distance</span><span class="p">)</span>
+
+            <span class="c1"># for efficiency, use squared euclidean distances</span>
+            <span class="n">kwds</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;squared&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">effective_metric_</span> <span class="o">==</span> <span class="s1">&#39;euclidean&#39;</span>
+                    <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">effective_metric_params_</span><span class="p">)</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pairwise_distances_chunked</span><span class="p">(</span>
+                <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_X</span><span class="p">,</span> <span class="n">reduce_func</span><span class="o">=</span><span class="n">reduce_func</span><span class="p">,</span>
+                <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">effective_metric_</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ball_tree&#39;</span><span class="p">,</span> <span class="s1">&#39;kd_tree&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> does not work with sparse matrices. Densify the data, &quot;</span>
+                    <span class="s2">&quot;or set algorithm=&#39;brute&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_method</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">LooseVersion</span><span class="p">(</span><span class="n">joblib_version</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">LooseVersion</span><span class="p">(</span><span class="s1">&#39;0.12&#39;</span><span class="p">):</span>
+                <span class="c1"># Deal with change of API in joblib</span>
+                <span class="n">delayed_query</span> <span class="o">=</span> <span class="n">delayed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tree</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
+                                        <span class="n">check_pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">parallel_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="s2">&quot;threading&quot;</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">delayed_query</span> <span class="o">=</span> <span class="n">delayed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tree</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+                <span class="n">parallel_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;prefer&quot;</span><span class="p">:</span> <span class="s2">&quot;threads&quot;</span><span class="p">}</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">,</span> <span class="o">**</span><span class="n">parallel_kwargs</span><span class="p">)(</span>
+                <span class="n">delayed_query</span><span class="p">(</span>
+                    <span class="n">X</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="n">n_neighbors</span><span class="p">,</span> <span class="n">return_distance</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">gen_even_slices</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_jobs</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;internal: _fit_method not recognized&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_distance</span><span class="p">:</span>
+            <span class="n">dist</span><span class="p">,</span> <span class="n">neigh_ind</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">dist</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">neigh_ind</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">query_is_train</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If the query data is the same as the indexed data, we would like</span>
+            <span class="c1"># to ignore the first nearest neighbor of every sample, i.e</span>
+            <span class="c1"># the sample itself.</span>
+            <span class="k">if</span> <span class="n">return_distance</span><span class="p">:</span>
+                <span class="n">dist</span><span class="p">,</span> <span class="n">neigh_ind</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">neigh_ind</span> <span class="o">=</span> <span class="n">result</span>
+
+            <span class="n">sample_mask</span> <span class="o">=</span> <span class="n">neigh_ind</span> <span class="o">!=</span> <span class="n">sample_range</span>
+
+            <span class="c1"># Corner case: When the number of duplicates are more</span>
+            <span class="c1"># than the number of neighbors, the first NN will not</span>
+            <span class="c1"># be the sample, but a duplicate.</span>
+            <span class="c1"># In that case mask the first duplicate.</span>
+            <span class="n">dup_gr_nbrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">sample_mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">sample_mask</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">][</span><span class="n">dup_gr_nbrs</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">neigh_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                <span class="n">neigh_ind</span><span class="p">[</span><span class="n">sample_mask</span><span class="p">],</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_neighbors</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">return_distance</span><span class="p">:</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                    <span class="n">dist</span><span class="p">[</span><span class="n">sample_mask</span><span class="p">],</span> <span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_neighbors</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">dist</span><span class="p">,</span> <span class="n">neigh_ind</span>
+            <span class="k">return</span> <span class="n">neigh_ind</span></div>
+
+<div class="viewcode-block" id="KNeighborsTimeSeriesClassifier.predict"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.time_series_neighbors.html#sktime.classifiers.time_series_neighbors.KNeighborsTimeSeriesClassifier.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Predict the class labels for the provided data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : sktime-format pandas dataframe or array-like, shape (n_query, n_features), \</span>
+<span class="sd">                or (n_query, n_indexed) if metric == &#39;precomputed&#39;</span>
+<span class="sd">            Test samples.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y : array of shape [n_samples] or [n_samples, n_outputs]</span>
+<span class="sd">            Class labels for each data sample.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">check_data_sktime_tsc</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dim_to_use</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">)</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span>
+        <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span> <span class="o">=</span> <span class="n">_check_array_ts</span><span class="o">.</span><span class="vm">__code__</span>
+        <span class="n">neigh_dist</span><span class="p">,</span> <span class="n">neigh_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kneighbors</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">classes_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="n">_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_2d_</span><span class="p">:</span>
+            <span class="n">_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">classes_</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">]</span>
+
+        <span class="n">n_outputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">_get_weights</span><span class="p">(</span><span class="n">neigh_dist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_outputs</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">classes_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">classes_k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classes_</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mode</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">_y</span><span class="p">[</span><span class="n">neigh_ind</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mode</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">weighted_mode</span><span class="p">(</span><span class="n">_y</span><span class="p">[</span><span class="n">neigh_ind</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mode</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+            <span class="n">y_pred</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">classes_k</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_2d_</span><span class="p">:</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+        <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="k">return</span> <span class="n">y_pred</span></div>
+
+<div class="viewcode-block" id="KNeighborsTimeSeriesClassifier.predict_proba"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.time_series_neighbors.html#sktime.classifiers.time_series_neighbors.KNeighborsTimeSeriesClassifier.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return probability estimates for the test data X.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : sktime-format pandas dataframe or array-like, shape (n_query, n_features), \</span>
+<span class="sd">                or (n_query, n_indexed) if metric == &#39;precomputed&#39;</span>
+<span class="sd">            Test samples.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        p : array of shape = [n_samples, n_classes], or a list of n_outputs</span>
+<span class="sd">            of such arrays if n_outputs &gt; 1.</span>
+<span class="sd">            The class probabilities of the input samples. Classes are ordered</span>
+<span class="sd">            by lexicographic order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">check_data_sktime_tsc</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span>
+        <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span> <span class="o">=</span> <span class="n">_check_array_ts</span><span class="o">.</span><span class="vm">__code__</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="s1">&#39;csr&#39;</span><span class="p">)</span>
+
+        <span class="n">neigh_dist</span><span class="p">,</span> <span class="n">neigh_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kneighbors</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="n">classes_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="n">_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_2d_</span><span class="p">:</span>
+            <span class="n">_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">classes_</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">]</span>
+
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">_get_weights</span><span class="p">(</span><span class="n">neigh_dist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">neigh_ind</span><span class="p">)</span>
+
+        <span class="n">all_rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">classes_k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classes_</span><span class="p">):</span>
+            <span class="n">pred_labels</span> <span class="o">=</span> <span class="n">_y</span><span class="p">[:,</span> <span class="n">k</span><span class="p">][</span><span class="n">neigh_ind</span><span class="p">]</span>
+            <span class="n">proba_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">classes_k</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
+            <span class="c1"># a simple &#39;:&#39; index doesn&#39;t work right</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pred_labels</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>  <span class="c1"># loop is O(n_neighbors)</span>
+                <span class="n">proba_k</span><span class="p">[</span><span class="n">all_rows</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">weights</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+
+            <span class="c1"># normalize &#39;votes&#39; into real [0,1] probabilities</span>
+            <span class="n">normalizer</span> <span class="o">=</span> <span class="n">proba_k</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">normalizer</span><span class="p">[</span><span class="n">normalizer</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">proba_k</span> <span class="o">/=</span> <span class="n">normalizer</span>
+
+            <span class="n">probabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proba_k</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs_2d_</span><span class="p">:</span>
+            <span class="n">probabilities</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">check_array</span><span class="o">.</span><span class="vm">__code__</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="k">return</span> <span class="n">probabilities</span></div></div>
+
+
+<div class="viewcode-block" id="check_data_sktime_tsc"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.time_series_neighbors.html#sktime.classifiers.time_series_neighbors.check_data_sktime_tsc">[docs]</a><span class="k">def</span> <span class="nf">check_data_sktime_tsc</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dim_to_use</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A utility method to check the input of a TSC KNN classifier. The data must either be in</span>
+
+<span class="sd">            a)  the standard sktime format (pandas dataframe with n rows and d columns for n cases with d dimesions)</span>
+
+<span class="sd">            OR</span>
+
+<span class="sd">            b)  a numpy ndarray with shape([n_cases,n_readings,n_dimensions]) to match the expected format for cython</span>
+<span class="sd">                distance mesures.</span>
+
+<span class="sd">        If the data matches a it will be transformed into b) and returned. If it is already in b), the input X will be</span>
+<span class="sd">        returned without modification.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -------</span>
+<span class="sd">        X : sktime-format pandas dataframe with shape([n_cases,n_dimensions]),</span>
+<span class="sd">        or numpy ndarray with shape([n_cases,n_readings,n_dimensions])</span>
+
+<span class="sd">        y : {array-like, sparse matrix}</span>
+<span class="sd">            Target values of shape = [n_samples]</span>
+
+<span class="sd">        dim_to_use: indesx of the dimension to use (defaults to 0, i.e. first dimension)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        X : numpy ndarray with shape([n_cases,n_readings,n_dimensions])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">dim_to_use</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">num_cases</span><span class="p">,</span> <span class="n">num_readings</span><span class="p">,</span> <span class="n">n_dimensions</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;X should be a numpy array with 3 dimensions &quot;</span>
+                             <span class="s2">&quot;([n_cases,n_readings,n_dimensions]). Instead, found: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">X</span></div>
+
+<span class="k">def</span> <span class="nf">_check_array_ts</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">accept_large_sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numeric&quot;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_all_finite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">ensure_2d</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_nd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ensure_min_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">ensure_min_features</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">warn_on_dtype</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">array</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

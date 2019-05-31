@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.datasets.base module &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sktime.distances package" href="sktime.distances.html" />
+    <link rel="prev" title="sktime.datasets package" href="sktime.datasets.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sktime.html">sktime package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sktime.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sktime.classifiers.html">sktime.classifiers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.contrib.html">sktime.contrib package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="sktime.datasets.html">sktime.datasets package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sktime.datasets.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.distances.html">sktime.distances package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.experiments.html">sktime.experiments package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.forecasters.html">sktime.forecasters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.regressors.html">sktime.regressors package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.transformers.html">sktime.transformers package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sktime.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sktime.html">sktime package</a> &raquo;</li>
+        
+          <li><a href="sktime.datasets.html">sktime.datasets package</a> &raquo;</li>
+        
+      <li>sktime.datasets.base module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autogen/sktime.datasets.base.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sktime.datasets.base">
+<span id="sktime-datasets-base-module"></span><h1>sktime.datasets.base module<a class="headerlink" href="#module-sktime.datasets.base" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for loading datasets</p>
+<dl class="function">
+<dt id="sktime.datasets.base.load_gunpoint">
+<code class="descclassname">sktime.datasets.base.</code><code class="descname">load_gunpoint</code><span class="sig-paren">(</span><em>split='TRAIN'</em>, <em>return_X_y=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/datasets/base.html#load_gunpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.datasets.base.load_gunpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the GunPoint time series classification problem and returns X and y</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>split</strong> (<em>str{&quot;ALL&quot;</em><em>, </em><em>&quot;TRAIN&quot;</em><em>, </em><em>&quot;TEST&quot;}</em><em>, </em><em>optional</em><em> (</em><em>default=&quot;TRAIN&quot;</em><em>)</em>) – Whether to load the train or test partition of the problem. By default it loads the train split.</p></li>
+<li><p><strong>return_X_y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, returns (features, target) separately instead of a single dataframe with columns for
+features and the target.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>pandas DataFrame with m rows and c columns</em>) – The time series data for the problem with m cases and c dimensions</p></li>
+<li><p><strong>y</strong> (<em>numpy array</em>) – The class labels for each case in X</p></li>
+<li><p><em>Details</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><strong>Dimensionality</strong> (<em>univariate</em>)</p></li>
+<li><p><strong>Series length</strong> (<em>150</em>)</p></li>
+<li><p><strong>Train cases</strong> (<em>50</em>)</p></li>
+<li><p><strong>Test cases</strong> (<em>150</em>)</p></li>
+<li><p><strong>Number of classes</strong> (<em>2</em>)</p></li>
+<li><p><em>This dataset involves one female actor and one male actor making a motion with their</em></p></li>
+<li><p><strong>hand. The two classes are</strong> (<em>Gun-Draw and Point: For Gun-Draw the actors have their</em>)</p></li>
+<li><p><em>hands by their sides. They draw a replicate gun from a hip-mounted holster, point it</em></p></li>
+<li><p><em>at a target for approximately one second, then return the gun to the holster, and</em></p></li>
+<li><p><em>their hands to their sides. For Point the actors have their gun by their sides.</em></p></li>
+<li><p><em>They point with their index fingers to a target for approximately one second, and</em></p></li>
+<li><p><em>then return their hands to their sides. For both classes, we tracked the centroid</em></p></li>
+<li><p><em>of the actor’s right hands in both X- and Y-axes, which appear to be highly</em></p></li>
+<li><p><em>correlated. The data in the archive is just the X-axis.</em></p></li>
+<li><p><strong>Dataset details</strong> (<em>http://timeseriesclassification.com/description.php?Dataset=GunPoint</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.datasets.base.load_arrow_head">
+<code class="descclassname">sktime.datasets.base.</code><code class="descname">load_arrow_head</code><span class="sig-paren">(</span><em>split='TRAIN'</em>, <em>return_X_y=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/datasets/base.html#load_arrow_head"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.datasets.base.load_arrow_head" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the ArrowHead time series classification problem and returns X and y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>split</strong> (<em>str{&quot;ALL&quot;</em><em>, </em><em>&quot;TRAIN&quot;</em><em>, </em><em>&quot;TEST&quot;}</em><em>, </em><em>optional</em><em> (</em><em>default=&quot;TRAIN&quot;</em><em>)</em>) – Whether to load the train or test partition of the problem. By default it loads the train split.</p></li>
+<li><p><strong>return_X_y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, returns (features, target) separately instead of a single dataframe with columns for
+features and the target.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>pandas DataFrame with m rows and c columns</em>) – The time series data for the problem with m cases and c dimensions</p></li>
+<li><p><strong>y</strong> (<em>numpy array</em>) – The class labels for each case in X</p></li>
+<li><p><em>Details</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><strong>Dimensionality</strong> (<em>univariate</em>)</p></li>
+<li><p><strong>Series length</strong> (<em>251</em>)</p></li>
+<li><p><strong>Train cases</strong> (<em>36</em>)</p></li>
+<li><p><strong>Test cases</strong> (<em>175</em>)</p></li>
+<li><p><strong>Number of classes</strong> (<em>3</em>)</p></li>
+<li><p><em>The arrowhead data consists of outlines of the images of arrowheads. The shapes of the</em></p></li>
+<li><p><em>projectile points are converted into a time series using the angle-based method. The</em></p></li>
+<li><p><em>classification of projectile points is an important topic in anthropology. The classes</em></p></li>
+<li><p><em>are based on shape distinctions such as the presence and location of a notch in the</em></p></li>
+<li><p><em>arrow. The problem in the repository is a length normalised version of that used in</em></p></li>
+<li><p><em>Ye09shapelets. The three classes are called “Avonlea”, “Clovis” and “Mix”.”</em></p></li>
+<li><p><strong>Dataset details</strong> (<em>http://timeseriesclassification.com/description.php?Dataset=ArrowHead</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.datasets.base.load_italy_power_demand">
+<code class="descclassname">sktime.datasets.base.</code><code class="descname">load_italy_power_demand</code><span class="sig-paren">(</span><em>split='TRAIN'</em>, <em>return_X_y=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/datasets/base.html#load_italy_power_demand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.datasets.base.load_italy_power_demand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the ItalyPowerDemand time series classification problem and returns X and y</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>split</strong> (<em>str{&quot;ALL&quot;</em><em>, </em><em>&quot;TRAIN&quot;</em><em>, </em><em>&quot;TEST&quot;}</em><em>, </em><em>optional</em><em> (</em><em>default=&quot;TRAIN&quot;</em><em>)</em>) – Whether to load the train or test partition of the problem. By default it loads the train split.</p></li>
+<li><p><strong>return_X_y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, returns (features, target) separately instead of a single dataframe with columns for
+features and the target.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>pandas DataFrame with m rows and c columns</em>) – The time series data for the problem with m cases and c dimensions</p></li>
+<li><p><strong>y</strong> (<em>numpy array</em>) – The class labels for each case in X</p></li>
+<li><p><em>Details</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><strong>Dimensionality</strong> (<em>univariate</em>)</p></li>
+<li><p><strong>Series length</strong> (<em>24</em>)</p></li>
+<li><p><strong>Train cases</strong> (<em>67</em>)</p></li>
+<li><p><strong>Test cases</strong> (<em>1029</em>)</p></li>
+<li><p><strong>Number of classes</strong> (<em>2</em>)</p></li>
+<li><p><em>The data was derived from twelve monthly electrical power demand time series from Italy and</em></p></li>
+<li><p><strong>first used in the paper “Intelligent Icons</strong> (<em>Integrating Lite-Weight Data Mining and</em>)</p></li>
+<li><p><em>Visualization into GUI Operating Systems”. The classification task is to distinguish days</em></p></li>
+<li><p><em>from Oct to March (inclusive) from April to September.</em></p></li>
+<li><p><strong>Dataset details</strong> (<em>http://timeseriesclassification.com/description.php?Dataset=ItalyPowerDemand</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.datasets.base.load_shampoo_sales">
+<code class="descclassname">sktime.datasets.base.</code><code class="descname">load_shampoo_sales</code><span class="sig-paren">(</span><em>return_y_as_dataframe=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/datasets/base.html#load_shampoo_sales"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.datasets.base.load_shampoo_sales" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the shampoo sales univariate time series forecasting dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>return_y_as_dataframe</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return target series as series or dataframe, useful for high-level interface.
+- If True, returns target series as pandas.DataFrame.s
+- If False, returns target series as pandas.Series.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>y</strong> (<em>pandas Series/DataFrame</em>) – Shampoo sales dataset</p></li>
+<li><p><em>Details</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>This dataset describes the monthly number of sales of shampoo over a 3 year period.</em></p></li>
+<li><p><em>The units are a sales count.</em></p></li>
+<li><p><strong>Dimensionality</strong> (<em>univariate</em>)</p></li>
+<li><p><strong>Series length</strong> (<em>36</em>)</p></li>
+<li><p><strong>Frequency</strong> (<em>Monthly</em>)</p></li>
+<li><p><strong>Number of cases</strong> (<em>1</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="simple">
+<dt>..[1] Makridakis, Wheelwright and Hyndman (1998) Forecasting: methods and applications,</dt><dd><p>John Wiley &amp; Sons: New York. Chapter 3.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.datasets.base.load_longley">
+<code class="descclassname">sktime.datasets.base.</code><code class="descname">load_longley</code><span class="sig-paren">(</span><em>return_X_y=False</em>, <em>return_y_as_dataframe=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/datasets/base.html#load_longley"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.datasets.base.load_longley" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the Longley dataset for forecasting with exogenous variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>return_y_as_dataframe</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – Whether to return target series as series or dataframe, useful for high-level interface.
+- If True, returns target series as pandas.DataFrame.s
+- If False, returns target series as pandas.Series.</p></li>
+<li><p><strong>return_X_y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em><em> (</em><em>default=False</em><em>)</em>) – If True, returns (features, target) separately instead of a single dataframe with columns for
+features and the target.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>pandas.DataFrame</em>) – The exogenous time series data for the problem.</p></li>
+<li><p><strong>y</strong> (<em>pandas.Series</em>) – The target series to be predicted.</p></li>
+<li><p><em>Details</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>This dataset contains various US macroeconomic variables from 1947 to 1962 that are known to be highly</em></p></li>
+<li><p><em>collinear.</em></p></li>
+<li><p><strong>Dimensionality</strong> (<em>multivariate, 6</em>)</p></li>
+<li><p><strong>Series length</strong> (<em>16</em>)</p></li>
+<li><p><strong>Frequency</strong> (<em>Yearly</em>)</p></li>
+<li><p><strong>Number of cases</strong> (<em>1</em>)</p></li>
+<li><p><em>Variable description</em></p></li>
+<li><p><em>TOTEMP - Total employment (y)</em></p></li>
+<li><p><em>GNPDEFL - Gross national product deflator</em></p></li>
+<li><p><em>GNP - Gross national product</em></p></li>
+<li><p><em>UNEMP - Number of unemployed</em></p></li>
+<li><p><em>ARMED - Size of armed forces</em></p></li>
+<li><p><em>POP - Population</em></p></li>
+<li><p><em>YEAR - Calendar year (index)</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="simple">
+<dt>..[1] Longley, J.W. (1967) “An Appraisal of Least Squares Programs for the</dt><dd><p>Electronic Comptuer from the Point of View of the User.”  Journal of
+the American Statistical Association.  62.319, 819-41.
+(<a class="reference external" href="https://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Longley.dat">https://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Longley.dat</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sktime.distances.html" class="btn btn-neutral float-right" title="sktime.distances package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sktime.datasets.html" class="btn btn-neutral float-left" title="sktime.datasets package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

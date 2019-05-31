@@ -1,0 +1,7 @@
+sktime.distances.elastic\_cython module
+=======================================
+
+.. automodule:: sktime.distances.elastic_cython
+    :members:
+    :undoc-members:
+    :show-inheritance:

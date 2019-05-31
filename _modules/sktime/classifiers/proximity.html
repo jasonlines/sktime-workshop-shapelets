@@ -1,0 +1,1356 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.classifiers.proximity &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.classifiers.proximity</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.classifiers.proximity</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Proximity Forest: An effective and scalable distance-based classifier for time series</span>
+<span class="c1">#</span>
+<span class="c1"># author: George Oastler (linkedin.com/goastler)</span>
+<span class="c1">#</span>
+<span class="c1"># paper link: https://arxiv.org/abs/1808.10594</span>
+<span class="c1"># bibtex reference:</span>
+<span class="c1"># @article{DBLP:journals/corr/abs-1808-10594,</span>
+<span class="c1">#   author    = {Benjamin Lucas and</span>
+<span class="c1">#                Ahmed Shifaz and</span>
+<span class="c1">#                Charlotte Pelletier and</span>
+<span class="c1">#                Lachlan O&#39;Neill and</span>
+<span class="c1">#                Nayyar A. Zaidi and</span>
+<span class="c1">#                Bart Goethals and</span>
+<span class="c1">#                Fran{\c{c}}ois Petitjean and</span>
+<span class="c1">#                Geoffrey I. Webb},</span>
+<span class="c1">#   title     = {Proximity Forest: An effective and scalable distance-based classifier</span>
+<span class="c1">#                for time series},</span>
+<span class="c1">#   journal   = {CoRR},</span>
+<span class="c1">#   volume    = {abs/1808.10594},</span>
+<span class="c1">#   year      = {2018},</span>
+<span class="c1">#   url       = {http://arxiv.org/abs/1808.10594},</span>
+<span class="c1">#   archivePrefix = {arXiv},</span>
+<span class="c1">#   eprint    = {1808.10594},</span>
+<span class="c1">#   timestamp = {Mon, 03 Sep 2018 13:36:40 +0200},</span>
+<span class="c1">#   biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1808-10594},</span>
+<span class="c1">#   bibsource = {dblp computer science bibliography, https://dblp.org}</span>
+<span class="c1"># }</span>
+<span class="c1">#</span>
+<span class="c1"># todo unit tests</span>
+<span class="c1"># todo expand debug printing capability</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;George Oastler&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.ma</span> <span class="k">import</span> <span class="n">floor</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">randint</span><span class="p">,</span> <span class="n">uniform</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">LabelEncoder</span><span class="p">,</span> <span class="n">normalize</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">check_random_state</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseClassifier</span>
+<span class="kn">from</span> <span class="nn">..distances.elastic_cython</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">ddtw_distance</span><span class="p">,</span> <span class="n">dtw_distance</span><span class="p">,</span> <span class="n">erp_distance</span><span class="p">,</span> <span class="n">lcss_distance</span><span class="p">,</span> <span class="n">msm_distance</span><span class="p">,</span> <span class="n">wddtw_distance</span><span class="p">,</span> <span class="n">wdtw_distance</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">comparison</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">dataset_properties</span>
+<span class="kn">from</span> <span class="nn">..utils.transformations</span> <span class="k">import</span> <span class="n">tabularise</span>
+<span class="kn">from</span> <span class="nn">..utils.validation</span> <span class="k">import</span> <span class="n">check_X_y</span>
+
+
+<div class="viewcode-block" id="get_default_dimension"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_default_dimension">[docs]</a><span class="k">def</span> <span class="nf">get_default_dimension</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns default dimension to use in a dataset. Defaults to 0 for univariate datasets.</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    result : int</span>
+<span class="sd">        default dimension of a dataset to use</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="get_default_num_trees"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_default_num_trees">[docs]</a><span class="k">def</span> <span class="nf">get_default_num_trees</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns default number of trees to make in a proximity forest</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    result : int</span>
+<span class="sd">        default number of trees</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">100</span></div>
+
+
+<div class="viewcode-block" id="get_default_gain_method"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_default_gain_method">[docs]</a><span class="k">def</span> <span class="nf">get_default_gain_method</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns default gain method for a split at a tree node</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    result : callable</span>
+<span class="sd">        default gain method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">gini</span></div>
+
+
+<div class="viewcode-block" id="get_default_num_stump_evaluations"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_default_num_stump_evaluations">[docs]</a><span class="k">def</span> <span class="nf">get_default_num_stump_evaluations</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns default r (number of splits) to try at a tree node</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    result : int</span>
+<span class="sd">        default number of splits to examine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">5</span></div>
+
+
+<div class="viewcode-block" id="get_default_is_leaf_method"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_default_is_leaf_method">[docs]</a><span class="k">def</span> <span class="nf">get_default_is_leaf_method</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns default method for checking whether a tree should branch further or not</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    result : callable</span>
+<span class="sd">        default method to check whether a tree node is a leaf or not</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pure</span></div>
+
+
+<div class="viewcode-block" id="get_default_pick_exemplars_method"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_default_pick_exemplars_method">[docs]</a><span class="k">def</span> <span class="nf">get_default_pick_exemplars_method</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns default method for picking exemplar instances from a dataset</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    result : callable</span>
+<span class="sd">        default method to pick exemplars from a dataset (set of instances and class labels)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pick_one_exemplar_per_class</span></div>
+
+
+<div class="viewcode-block" id="pure"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.pure">[docs]</a><span class="k">def</span> <span class="nf">pure</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    test whether a set of class labels are pure (i.e. all the same)</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    y : 1d numpy array</span>
+<span class="sd">        array of class labels</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    result : boolean</span>
+<span class="sd">        whether the set of class labels is pure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get unique class labels</span>
+    <span class="n">unique_class_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="c1"># if more than 1 unique then not pure</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_class_labels</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="gini"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.gini">[docs]</a><span class="k">def</span> <span class="nf">gini</span><span class="p">(</span><span class="n">parent_class_labels</span><span class="p">,</span> <span class="n">children_class_labels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get gini score of a split, i.e. the gain from parent to children</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    parent_class_labels : 1d numpy array</span>
+<span class="sd">        array of class labels at parent</span>
+<span class="sd">    children_class_labels : list of 1d numpy array</span>
+<span class="sd">        list of array of class labels, one array per child</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    score : float</span>
+<span class="sd">        gini score of the split from parent class labels to children. Note the gini score is scaled to be between 0</span>
+<span class="sd">        and 1. 1 == pure, 0 == not pure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># find gini for parent node</span>
+    <span class="n">parent_score</span> <span class="o">=</span> <span class="n">gini_node</span><span class="p">(</span><span class="n">parent_class_labels</span><span class="p">)</span>
+    <span class="c1"># find number of instances overall</span>
+    <span class="n">parent_num_instances</span> <span class="o">=</span> <span class="n">parent_class_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># sum the children&#39;s gini scores</span>
+    <span class="n">children_score_sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">children_class_labels</span><span class="p">)):</span>
+        <span class="n">child_class_labels</span> <span class="o">=</span> <span class="n">children_class_labels</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="c1"># find gini score for this child</span>
+        <span class="n">child_score</span> <span class="o">=</span> <span class="n">gini_node</span><span class="p">(</span><span class="n">child_class_labels</span><span class="p">)</span>
+        <span class="c1"># weight score by proportion of instances at child compared to parent</span>
+        <span class="n">child_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">child_class_labels</span><span class="p">)</span>
+        <span class="n">child_score</span> <span class="o">*=</span> <span class="p">(</span><span class="n">child_size</span> <span class="o">/</span> <span class="n">parent_num_instances</span><span class="p">)</span>
+        <span class="c1"># add to cumulative sum</span>
+        <span class="n">children_score_sum</span> <span class="o">+=</span> <span class="n">child_score</span>
+    <span class="c1"># gini outputs relative improvement</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">parent_score</span> <span class="o">-</span> <span class="n">children_score_sum</span>
+    <span class="k">return</span> <span class="n">score</span></div>
+
+
+<div class="viewcode-block" id="gini_node"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.gini_node">[docs]</a><span class="k">def</span> <span class="nf">gini_node</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get gini score at a specific node</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    y : 1d numpy array</span>
+<span class="sd">        array of class labels</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    score : float</span>
+<span class="sd">        gini score for the set of class labels (i.e. how pure they are). 1 == pure, 0 == not pure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get number instances at node</span>
+    <span class="n">num_instances</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">num_instances</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># count each class</span>
+        <span class="n">unique_class_labels</span><span class="p">,</span> <span class="n">class_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">return_counts</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># subtract class entropy from current score for each class</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_class_labels</span><span class="p">)):</span>
+            <span class="n">class_count</span> <span class="o">=</span> <span class="n">class_counts</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">proportion</span> <span class="o">=</span> <span class="n">class_count</span> <span class="o">/</span> <span class="n">num_instances</span>
+            <span class="n">sq_proportion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">proportion</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">-=</span> <span class="n">sq_proportion</span>
+    <span class="c1"># double score as gini is between 0 and 0.5, we need 0 and 1</span>
+    <span class="n">score</span> <span class="o">*=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">score</span></div>
+
+
+<span class="c1"># todo info gain</span>
+<div class="viewcode-block" id="information_gain"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.information_gain">[docs]</a><span class="k">def</span> <span class="nf">information_gain</span><span class="p">(</span><span class="n">parent_class_labels</span><span class="p">,</span> <span class="n">children_class_labels</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<span class="c1"># todo chi sq</span>
+<div class="viewcode-block" id="chi_squared"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.chi_squared">[docs]</a><span class="k">def</span> <span class="nf">chi_squared</span><span class="p">(</span><span class="n">parent_class_labels</span><span class="p">,</span> <span class="n">children_class_labels</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="pick_one_exemplar_per_class"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.pick_one_exemplar_per_class">[docs]</a><span class="k">def</span> <span class="nf">pick_one_exemplar_per_class</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    pick one random exemplar instance per class</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    X : panda dataframe</span>
+<span class="sd">        instances representing a dataset</span>
+<span class="sd">    y : 1d numpy array</span>
+<span class="sd">        array of class labels, one for each instance in the instances panda dataframe parameter</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    chosen_instances : panda dataframe</span>
+<span class="sd">        the chosen exemplar instances</span>
+<span class="sd">    chosen_class_labels : numpy 1d array</span>
+<span class="sd">        array of class labels corresponding to the exemplar instances</span>
+<span class="sd">        the exemplar instances class labels</span>
+<span class="sd">    remaining_instances : panda dataframe</span>
+<span class="sd">        the remaining instances after exemplars have been removed</span>
+<span class="sd">    remaining_class_labels : numpy 1d array</span>
+<span class="sd">        array of class labels corresponding to the exemplar instances</span>
+<span class="sd">        the remaining instances class labels after picking exemplars</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># find unique class labels</span>
+    <span class="n">unique_class_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">num_unique_class_labels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_class_labels</span><span class="p">)</span>
+    <span class="n">chosen_instances</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">chosen_class_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_unique_class_labels</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="n">chosen_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_unique_class_labels</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="c1"># for each class randomly choose and instance</span>
+    <span class="k">for</span> <span class="n">class_label_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_unique_class_labels</span><span class="p">):</span>
+        <span class="n">class_label</span> <span class="o">=</span> <span class="n">unique_class_labels</span><span class="p">[</span><span class="n">class_label_index</span><span class="p">]</span>
+        <span class="c1"># filter class labels for desired class and get indices</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">class_label</span><span class="p">)</span>
+        <span class="c1"># flatten numpy output</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="c1"># random choice</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">random_state</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="c1"># record exemplar instance and class label</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">chosen_instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="n">chosen_class_labels</span><span class="p">[</span><span class="n">class_label_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">class_label</span>
+        <span class="n">chosen_indices</span><span class="p">[</span><span class="n">class_label_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+    <span class="c1"># remove exemplar class labels from dataset - note this returns a copy, not inplace!</span>
+    <span class="n">remaining_class_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">chosen_indices</span><span class="p">)</span>
+    <span class="c1"># remove exemplar instances from dataset - note this returns a copy, not inplace!</span>
+    <span class="n">remaining_instances</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">chosen_indices</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">chosen_instances</span><span class="p">,</span> <span class="n">chosen_class_labels</span><span class="p">,</span> <span class="n">remaining_instances</span><span class="p">,</span> <span class="n">remaining_class_labels</span></div>
+
+
+<div class="viewcode-block" id="get_all_distance_measures_param_pool"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_all_distance_measures_param_pool">[docs]</a><span class="k">def</span> <span class="nf">get_all_distance_measures_param_pool</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dimension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    find parameter pool for all available distance measures</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    X : panda dataframe</span>
+<span class="sd">        instances representing a dataset</span>
+<span class="sd">    dimension : int</span>
+<span class="sd">        index of dimension to use</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    param_pool : list of dicts</span>
+<span class="sd">        list of dictionaries to pick distance measures and corresponding parameters from. This should be in the same</span>
+<span class="sd">        format as sklearn&#39;s GridSearchCV parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># find dataset properties</span>
+    <span class="n">instance_length</span> <span class="o">=</span> <span class="n">dataset_properties</span><span class="o">.</span><span class="n">max_instance_length</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+                                                             <span class="n">dimension</span><span class="p">)</span>  <span class="c1"># todo should this use the max instance</span>
+    <span class="c1"># length for unequal length dataset instances?</span>
+    <span class="n">max_raw_warping_window</span> <span class="o">=</span> <span class="n">floor</span><span class="p">((</span><span class="n">instance_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">max_warping_window_percentage</span> <span class="o">=</span> <span class="n">max_raw_warping_window</span> <span class="o">/</span> <span class="n">instance_length</span>
+    <span class="n">stdp</span> <span class="o">=</span> <span class="n">dataset_properties</span><span class="o">.</span><span class="n">stdp</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="c1"># setup param pool dictionary array (same structure as sklearn&#39;s GridSearchCV params!)</span>
+    <span class="n">param_pool</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                    <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="p">[</span><span class="n">dtw_distance</span><span class="p">],</span>
+                    <span class="s1">&#39;w&#39;</span>                                      <span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_warping_window_percentage</span><span class="p">)</span>
+                    <span class="p">},</span>
+            <span class="p">{</span>
+                    <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="p">[</span><span class="n">ddtw_distance</span><span class="p">],</span>
+                    <span class="s1">&#39;w&#39;</span>                                      <span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_warping_window_percentage</span><span class="p">)</span>
+                    <span class="p">},</span>
+            <span class="p">{</span>
+                    <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="p">[</span><span class="n">wdtw_distance</span><span class="p">],</span>
+                    <span class="s1">&#39;g&#39;</span>                                      <span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">},</span>
+            <span class="p">{</span>
+                    <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="p">[</span><span class="n">wddtw_distance</span><span class="p">],</span>
+                    <span class="s1">&#39;g&#39;</span>                                      <span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">},</span>
+            <span class="p">{</span>
+                    <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="p">[</span><span class="n">lcss_distance</span><span class="p">],</span>
+                    <span class="s1">&#39;epsilon&#39;</span>                                <span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">stdp</span><span class="p">,</span> <span class="n">stdp</span><span class="p">),</span>
+                    <span class="s1">&#39;delta&#39;</span>                                  <span class="p">:</span> <span class="n">randint</span><span class="p">(</span><span class="n">low</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">max_raw_warping_window</span><span class="p">)</span>
+                    <span class="p">},</span>
+            <span class="p">{</span>
+                    <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="p">[</span><span class="n">erp_distance</span><span class="p">],</span>
+                    <span class="s1">&#39;g&#39;</span>                                      <span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">stdp</span><span class="p">,</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">stdp</span><span class="p">),</span>
+                    <span class="s1">&#39;band_size&#39;</span>                              <span class="p">:</span> <span class="n">randint</span><span class="p">(</span><span class="n">low</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">max_raw_warping_window</span><span class="p">)</span>
+                    <span class="p">},</span>
+            <span class="c1"># {Split.get_distance_measure_key(): [twe_distance],</span>
+            <span class="c1">#  &#39;g&#39;: uniform(0.2 * stdp, 0.8 * stdp),</span>
+            <span class="c1">#  &#39;band_size&#39;: randint(low=0, high=max_raw_warping_window)},</span>
+            <span class="p">{</span>
+                    <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="p">[</span><span class="n">msm_distance</span><span class="p">],</span>
+                    <span class="s1">&#39;c&#39;</span>                                      <span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01375</span><span class="p">,</span> <span class="mf">0.0175</span><span class="p">,</span> <span class="mf">0.02125</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.02875</span><span class="p">,</span> <span class="mf">0.0325</span><span class="p">,</span>
+                                                                <span class="mf">0.03625</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.04375</span><span class="p">,</span> <span class="mf">0.0475</span><span class="p">,</span> <span class="mf">0.05125</span><span class="p">,</span>
+                                                                <span class="mf">0.055</span><span class="p">,</span> <span class="mf">0.05875</span><span class="p">,</span> <span class="mf">0.0625</span><span class="p">,</span> <span class="mf">0.06625</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.07375</span><span class="p">,</span> <span class="mf">0.0775</span><span class="p">,</span>
+                                                                <span class="mf">0.08125</span><span class="p">,</span> <span class="mf">0.085</span><span class="p">,</span> <span class="mf">0.08875</span><span class="p">,</span> <span class="mf">0.0925</span><span class="p">,</span> <span class="mf">0.09625</span><span class="p">,</span>
+                                                                <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.136</span><span class="p">,</span> <span class="mf">0.172</span><span class="p">,</span> <span class="mf">0.208</span><span class="p">,</span>
+                                                                <span class="mf">0.244</span><span class="p">,</span> <span class="mf">0.28</span><span class="p">,</span> <span class="mf">0.316</span><span class="p">,</span> <span class="mf">0.352</span><span class="p">,</span> <span class="mf">0.388</span><span class="p">,</span> <span class="mf">0.424</span><span class="p">,</span> <span class="mf">0.46</span><span class="p">,</span> <span class="mf">0.496</span><span class="p">,</span>
+                                                                <span class="mf">0.532</span><span class="p">,</span> <span class="mf">0.568</span><span class="p">,</span> <span class="mf">0.604</span><span class="p">,</span> <span class="mf">0.64</span><span class="p">,</span> <span class="mf">0.676</span><span class="p">,</span> <span class="mf">0.712</span><span class="p">,</span> <span class="mf">0.748</span><span class="p">,</span>
+                                                                <span class="mf">0.784</span><span class="p">,</span> <span class="mf">0.82</span><span class="p">,</span> <span class="mf">0.856</span><span class="p">,</span>
+                                                                <span class="mf">0.892</span><span class="p">,</span> <span class="mf">0.928</span><span class="p">,</span> <span class="mf">0.964</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.36</span><span class="p">,</span> <span class="mf">1.72</span><span class="p">,</span> <span class="mf">2.08</span><span class="p">,</span> <span class="mf">2.44</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span>
+                                                                <span class="mf">3.16</span><span class="p">,</span> <span class="mf">3.52</span><span class="p">,</span> <span class="mf">3.88</span><span class="p">,</span> <span class="mf">4.24</span><span class="p">,</span> <span class="mf">4.6</span><span class="p">,</span> <span class="mf">4.96</span><span class="p">,</span> <span class="mf">5.32</span><span class="p">,</span> <span class="mf">5.68</span><span class="p">,</span>
+                                                                <span class="mf">6.04</span><span class="p">,</span> <span class="mf">6.4</span><span class="p">,</span> <span class="mf">6.76</span><span class="p">,</span> <span class="mf">7.12</span><span class="p">,</span>
+                                                                <span class="mf">7.48</span><span class="p">,</span> <span class="mf">7.84</span><span class="p">,</span> <span class="mf">8.2</span><span class="p">,</span> <span class="mf">8.56</span><span class="p">,</span> <span class="mf">8.92</span><span class="p">,</span> <span class="mf">9.28</span><span class="p">,</span> <span class="mf">9.64</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">13.6</span><span class="p">,</span> <span class="mf">17.2</span><span class="p">,</span>
+                                                                <span class="mf">20.8</span><span class="p">,</span> <span class="mf">24.4</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mf">31.6</span><span class="p">,</span> <span class="mf">35.2</span><span class="p">,</span> <span class="mf">38.8</span><span class="p">,</span> <span class="mf">42.4</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span>
+                                                                <span class="mf">49.6</span><span class="p">,</span> <span class="mf">53.2</span><span class="p">,</span> <span class="mf">56.8</span><span class="p">,</span> <span class="mf">60.4</span><span class="p">,</span>
+                                                                <span class="mi">64</span><span class="p">,</span> <span class="mf">67.6</span><span class="p">,</span> <span class="mf">71.2</span><span class="p">,</span> <span class="mf">74.8</span><span class="p">,</span> <span class="mf">78.4</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mf">85.6</span><span class="p">,</span> <span class="mf">89.2</span><span class="p">,</span> <span class="mf">92.8</span><span class="p">,</span> <span class="mf">96.4</span><span class="p">,</span>
+                                                                <span class="mi">100</span><span class="p">]</span>
+                    <span class="p">},</span>
+            <span class="p">]</span>
+    <span class="k">return</span> <span class="n">param_pool</span></div>
+
+<div class="viewcode-block" id="get_default_param_perm"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.get_default_param_perm">[docs]</a><span class="k">def</span> <span class="nf">get_default_param_perm</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dimension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get default parameter permutation, i.e. euclidean distance</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    X : panda dataframe</span>
+<span class="sd">        instances representing a dataset</span>
+<span class="sd">    dimension : int</span>
+<span class="sd">        index of dimension to use</span>
+<span class="sd">    ----</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----</span>
+<span class="sd">    param_perm : dict</span>
+<span class="sd">        a dictionary of a distance measure (dtw) and corresponding parameters (window size)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># find dataset properties</span>
+    <span class="n">instance_length</span> <span class="o">=</span> <span class="n">dataset_properties</span><span class="o">.</span><span class="n">max_instance_length</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+                                                             <span class="n">dimension</span><span class="p">)</span>  <span class="c1"># todo should this use the max instance</span>
+    <span class="c1"># length for unequal length dataset instances?</span>
+    <span class="n">max_raw_warping_window</span> <span class="o">=</span> <span class="n">floor</span><span class="p">((</span><span class="n">instance_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+            <span class="n">ProximityStump</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">():</span> <span class="n">dtw_distance</span><span class="p">,</span>
+            <span class="s1">&#39;w&#39;</span>                                      <span class="p">:</span> <span class="n">max_raw_warping_window</span>
+            <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="ProximityStump"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityStump">[docs]</a><span class="k">class</span> <span class="nc">ProximityStump</span><span class="p">(</span><span class="n">BaseClassifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    proximity tree classifier of depth 1 - in other words, a k=1 nearest neighbour classifier with neighbourhood limited</span>
+<span class="sd">    to x exemplar instances</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    pick_exemplars_method : callable</span>
+<span class="sd">        Method to pick exemplars from a set of instances and class labels</span>
+<span class="sd">    param_perm : dict</span>
+<span class="sd">        a dictionary containing a distance measure and corresponding parameter</span>
+<span class="sd">    gain_method : callable</span>
+<span class="sd">        a method to calculate the gain of this split / stump</span>
+<span class="sd">    label_encoder : LabelEncoder</span>
+<span class="sd">        a label encoder, can be pre-populated</span>
+<span class="sd">    random_state : numpy RandomState</span>
+<span class="sd">        a random state for sampling random numbers</span>
+<span class="sd">    debug : boolean</span>
+<span class="sd">        whether to print debug info</span>
+<span class="sd">    dimension : int</span>
+<span class="sd">        dimension of the dataset to use. Defaults to zero for univariate datasets.</span>
+<span class="sd">    ----</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----</span>
+<span class="sd">    exemplar_instances : panda dataframe</span>
+<span class="sd">        the chosen exemplar instances</span>
+<span class="sd">    exemplar_class_labels : numpy 1d array</span>
+<span class="sd">        array of class labels corresponding to the exemplar instances</span>
+<span class="sd">        the exemplar instances class labels</span>
+<span class="sd">    remaining_instances : panda dataframe</span>
+<span class="sd">        the remaining instances after exemplars have been removed</span>
+<span class="sd">    remaining_class_labels : numpy 1d array</span>
+<span class="sd">        array of class labels corresponding to the exemplar instances</span>
+<span class="sd">        the remaining instances class labels after picking exemplars</span>
+<span class="sd">    branch_instances : list of panda dataframes</span>
+<span class="sd">        list of dataframes of instances, one for each child of this stump. I.e. if a stump splits into two children,</span>
+<span class="sd">        there will be a list of dataframes of length two. branch_instance[0] will contain all train instances</span>
+<span class="sd">        closest to exemplar 0, branch_instances[1] contains all train instances closest to exemplar 1,</span>
+<span class="sd">        etc. Exemplars are in the exemplar_instances variable</span>
+<span class="sd">    branch_class_labels: list of numpy 1d arrays</span>
+<span class="sd">        similar to branch_instances, but contains the class labels of the instances closest to each exemplar</span>
+<span class="sd">    distance_measure_param_perm: dict</span>
+<span class="sd">        parameters to pass to the distance measure method</span>
+<span class="sd">    distance_measure: callable</span>
+<span class="sd">        the distance measure to use for measure similarity between instances</span>
+<span class="sd">    gain: float</span>
+<span class="sd">        the gain of this stump</span>
+<span class="sd">    label_encoder : LabelEncoder</span>
+<span class="sd">        a label encoder, can be pre-populated</span>
+<span class="sd">    classes_ :</span>
+<span class="sd">        pointer to the label_encoder classes_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;George Oastler (linkedin.com/goastler)&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="n">get_default_pick_exemplars_method</span><span class="p">(),</span>
+                 <span class="n">param_perm</span> <span class="o">=</span> <span class="n">get_default_param_perm</span><span class="p">,</span>
+                 <span class="n">gain_method</span> <span class="o">=</span> <span class="n">get_default_gain_method</span><span class="p">(),</span>
+                 <span class="n">label_encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dimension</span> <span class="o">=</span> <span class="n">get_default_dimension</span><span class="p">(),</span>
+                 <span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_perm</span> <span class="o">=</span> <span class="n">param_perm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">dimension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span> <span class="o">=</span> <span class="n">gain_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="n">pick_exemplars_method</span>
+        <span class="c1"># vars set in the fit method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_instances</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_class_labels</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining_instances</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining_class_labels</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_instances</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_class_labels</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure_param_perm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="o">=</span> <span class="n">label_encoder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ProximityStump.get_distance_measure_key"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityStump.get_distance_measure_key">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_distance_measure_key</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get the key for the distance measure. This key is required for picking the distance measure out of the</span>
+<span class="sd">        param_perm constructor parameter.</span>
+<span class="sd">        ----</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----</span>
+<span class="sd">        key : string</span>
+<span class="sd">            key for the distance measure for the param_perm dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;dm&#39;</span></div>
+
+<div class="viewcode-block" id="ProximityStump.fit"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityStump.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        model a dataset using this proximity stump</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like or sparse matrix of shape = [n_samps, num_atts]</span>
+<span class="sd">            The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</span>
+<span class="sd">        y : array-like, shape = [n_samples] or [n_samples, n_outputs]</span>
+<span class="sd">            The class labels.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># checks</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_perm</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param_perm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_perm</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_perm</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;parameter permutation must be a dict or callable to obtain dict&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;gain method must be callable&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;gain method must be callable&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="c1"># if label encoder not setup, make a new one and train it</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="p">,</span> <span class="s1">&#39;classes_&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="c1"># if distance measure not extracted from parameter permutation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_distance_measure_key</span><span class="p">()</span>  <span class="c1"># get the key for the distance measure var in the param perm dict</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_perm</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="c1"># copy so not available to outside world</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure_param_perm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_perm</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="c1"># delete as we don&#39;t want to pass the distance measure as a parameter to itself!</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure_param_perm</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="c1"># get exemplars from dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_instances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_class_labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_instances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_class_labels</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="c1"># find distances of remaining instances to the exemplars</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_distances</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining_instances</span><span class="p">)</span>
+        <span class="n">num_exemplars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exemplar_instances</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_class_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_instances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># for each branch add a list for the instances and class labels closest to the exemplar instance for that branch</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_exemplars</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branch_instances</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branch_class_labels</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="n">num_instances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># for each instance</span>
+        <span class="k">for</span> <span class="n">instance_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_instances</span><span class="p">):</span>
+            <span class="c1"># find the distance to each exemplar</span>
+            <span class="n">exemplar_distances</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">instance_index</span><span class="p">]</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_instances</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">instance_index</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">class_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_class_labels</span><span class="p">[</span><span class="n">instance_index</span><span class="p">]</span>
+            <span class="c1"># pick the closest exemplar (min distance)</span>
+            <span class="n">closest_exemplar_index</span> <span class="o">=</span> <span class="n">comparison</span><span class="o">.</span><span class="n">arg_min</span><span class="p">(</span><span class="n">exemplar_distances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="c1"># add the instance to the corresponding list for the exemplar branch</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branch_instances</span><span class="p">[</span><span class="n">closest_exemplar_index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branch_class_labels</span><span class="p">[</span><span class="n">closest_exemplar_index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_label</span><span class="p">)</span>
+        <span class="c1"># convert lists to panda dataframe and numpy array for ease of use in other things (e.g. in a tree where</span>
+        <span class="c1"># branched instances / class labels are used in the next level</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_exemplars</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branch_class_labels</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branch_class_labels</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branch_instances</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">branch_instances</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="c1"># work out the gain for this split / stump</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_class_labels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ProximityStump.exemplar_distances"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityStump.exemplar_distances">[docs]</a>    <span class="k">def</span> <span class="nf">exemplar_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find the distance from the given instances to each exemplar instance</span>
+<span class="sd">        ----</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        X : panda dataframe</span>
+<span class="sd">            instances of the dataset</span>
+<span class="sd">        input_checks : boolean</span>
+<span class="sd">            whether to verify the dataset (e.g. dimensions, etc)</span>
+<span class="sd">        ----</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----</span>
+<span class="sd">        distances : 2d list</span>
+<span class="sd">            list of distance corresponding to each exemplar instance (instances by distances)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check data</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">num_instances</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># for each instance</span>
+        <span class="k">for</span> <span class="n">instance_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_instances</span><span class="p">):</span>
+            <span class="c1"># find the distances to each exemplar</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">instance_index</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">distances_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_distance_inst</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># add distances to the list (at the corresponding index to the instance being tested)</span>
+            <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">distances_inst</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distances</span></div>
+
+<div class="viewcode-block" id="ProximityStump.exemplar_distance_inst"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityStump.exemplar_distance_inst">[docs]</a>    <span class="k">def</span> <span class="nf">exemplar_distance_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find the distance from the given instance to each exemplar instance. Note this returns distance + 1 for</span>
+<span class="sd">        efficiency in other methods.</span>
+<span class="sd">        ----</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        instance : panda dataframe</span>
+<span class="sd">            instance of the dataset</span>
+<span class="sd">        input_checks : boolean</span>
+<span class="sd">            whether to verify the dataset (e.g. dimensions, etc)</span>
+<span class="sd">        ----</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----</span>
+<span class="sd">        distances : list</span>
+<span class="sd">            list of distance corresponding to each exemplar instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check data</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">Series</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;instance not a panda series&quot;</span><span class="p">)</span>
+        <span class="n">num_exemplars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exemplar_instances</span><span class="p">)</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># for each exemplar</span>
+        <span class="k">for</span> <span class="n">exemplar_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_exemplars</span><span class="p">):</span>
+            <span class="c1"># find the distance to the given instance</span>
+            <span class="n">exemplar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_instances</span><span class="p">[</span><span class="n">exemplar_index</span><span class="p">]</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_distance</span><span class="p">(</span><span class="n">exemplar</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
+            <span class="c1"># increment distance so at least 1</span>
+            <span class="n">distance</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># add it to the list (at same index as exemplar instance index)</span>
+            <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">distance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distances</span></div>
+
+<div class="viewcode-block" id="ProximityStump.predict_proba"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityStump.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        classify instances</span>
+<span class="sd">        ----</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        X : panda dataframe</span>
+<span class="sd">            instances of the dataset</span>
+<span class="sd">        input_checks : boolean</span>
+<span class="sd">            whether to verify the dataset (e.g. dimensions, etc)</span>
+<span class="sd">        ----</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----</span>
+<span class="sd">        predictions : 2d numpy array (instance by class)</span>
+<span class="sd">            array of prediction arrays. Each array has &lt;num classes&gt; values reflecting probability of each class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check data</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">num_instances</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">num_exemplars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exemplar_instances</span><span class="p">)</span>
+        <span class="n">num_unique_class_labels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">distributions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># find distances to each exemplar for each test instance</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exemplar_distances</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span>
+        <span class="n">ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">distances</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">distributions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">ones</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
+        <span class="c1"># for each test instance</span>
+        <span class="c1"># for instance_index in range(0, num_instances):</span>
+        <span class="c1">#     distribution = [0] * num_unique_class_labels</span>
+        <span class="c1">#     distributions.append(distribution)</span>
+        <span class="c1">#     # invert distances (as larger distance should be less likely predicted)</span>
+        <span class="c1">#     for exemplar_index in range(0, num_exemplars):</span>
+        <span class="c1">#         distance = distances[instance_index][exemplar_index]</span>
+        <span class="c1">#         exemplar_class_label = self.exemplar_class_labels[exemplar_index]</span>
+        <span class="c1">#         distribution[exemplar_class_label] = 1 / (1 + distance)</span>
+        <span class="c1"># normalise inverted distances to a probability</span>
+        <span class="c1"># distributions = np.array(distributions)</span>
+        <span class="n">normalize</span><span class="p">(</span><span class="n">distributions</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="s1">&#39;l1&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distributions</span></div>
+
+    <span class="k">def</span> <span class="nf">_find_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance_a</span><span class="p">,</span> <span class="n">instance_b</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find distance between two instances using distance measure + distance measure parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        instance_a : panda dataframe</span>
+<span class="sd">            instance of the dataset</span>
+<span class="sd">        instance_a : panda dataframe</span>
+<span class="sd">            another instance of the dataset</span>
+<span class="sd">        input_checks : boolean</span>
+<span class="sd">            whether to verify the dataset (e.g. dimensions, etc)</span>
+<span class="sd">        ----</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----</span>
+<span class="sd">        distance : float</span>
+<span class="sd">            value indicating how similar the two instances are</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance_a</span><span class="p">,</span> <span class="n">Series</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;instance not a panda series&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance_b</span><span class="p">,</span> <span class="n">Series</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;instance not a panda series&quot;</span><span class="p">)</span>
+        <span class="c1"># flatten both instances and transpose for cython parameter format</span>
+        <span class="n">instance_a</span> <span class="o">=</span> <span class="n">tabularise</span><span class="p">(</span><span class="n">instance_a</span><span class="p">,</span> <span class="n">return_array</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">instance_b</span> <span class="o">=</span> <span class="n">tabularise</span><span class="p">(</span><span class="n">instance_b</span><span class="p">,</span> <span class="n">return_array</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">instance_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">instance_a</span><span class="p">)</span>
+        <span class="n">instance_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">instance_b</span><span class="p">)</span>
+        <span class="c1"># find distance</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure_param_perm</span>
+        <span class="c1"># if distance measure uses dimension</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure</span> <span class="o">==</span> <span class="n">msm_distance</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure</span> <span class="o">==</span> <span class="n">lcss_distance</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure</span> \
+                <span class="o">==</span> <span class="n">erp_distance</span><span class="p">:</span>
+            <span class="c1"># copy the parameters</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="c1"># add the dimension to use</span>
+            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;dim_to_use&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measure</span><span class="p">(</span><span class="n">instance_a</span><span class="p">,</span> <span class="n">instance_b</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProximityTree"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityTree">[docs]</a><span class="k">class</span> <span class="nc">ProximityTree</span><span class="p">(</span><span class="n">BaseClassifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    proximity tree classifier using proximity stumps at each tree node to split data into branches.</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    pick_exemplars_method : callable</span>
+<span class="sd">        Method to pick exemplars from a set of instances and class labels</span>
+<span class="sd">    param_pool : list of dicts</span>
+<span class="sd">        a list of dictionaries containing a distance measure and corresponding parameter sources (distribution or</span>
+<span class="sd">        predefined value)</span>
+<span class="sd">    gain_method : callable</span>
+<span class="sd">        a method to calculate the gain of this split / stump</span>
+<span class="sd">    label_encoder : LabelEncoder</span>
+<span class="sd">        a label encoder, can be pre-populated</span>
+<span class="sd">    random_state : numpy RandomState</span>
+<span class="sd">        a random state for sampling random numbers</span>
+<span class="sd">    dimension : int</span>
+<span class="sd">        dimension of the dataset to use. Defaults to zero for univariate datasets.</span>
+<span class="sd">    debug : boolean</span>
+<span class="sd">        whether to print debug info</span>
+<span class="sd">    r : int</span>
+<span class="sd">        the number of proximity stumps to produce at each node. Each stump has a random distance measure and distance</span>
+<span class="sd">        measure parameter set. The stump with the best gain is used to split the data.</span>
+<span class="sd">    is_leaf_method : callable</span>
+<span class="sd">        a method which takes a split of data and produces a boolean value indicating whether the tree should continue</span>
+<span class="sd">        splitting.</span>
+<span class="sd">    ----</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----</span>
+<span class="sd">    level : int</span>
+<span class="sd">        the level of the current tree. Each tree is made up of a collection of trees, one for each branch. Each one</span>
+<span class="sd">        of these trees are level + 1 deep. The level begins on 0.</span>
+<span class="sd">    branches : array of trees</span>
+<span class="sd">        trees corresponding to each branch output of the proximity stump.</span>
+<span class="sd">    stump : ProximityStump</span>
+<span class="sd">        the proximity stump used to split the data at this node.</span>
+<span class="sd">    label_encoder : LabelEncoder</span>
+<span class="sd">        a label encoder, can be pre-populated</span>
+<span class="sd">    classes_ :</span>
+<span class="sd">        pointer to the label_encoder classes_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;George Oastler (linkedin.com/goastler)&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">gain_method</span> <span class="o">=</span> <span class="n">get_default_gain_method</span><span class="p">(),</span>
+                 <span class="n">num_stump_evaluations</span> <span class="o">=</span> <span class="n">get_default_num_stump_evaluations</span><span class="p">(),</span>
+                 <span class="n">max_depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                 <span class="n">dimension</span> <span class="o">=</span> <span class="n">get_default_dimension</span><span class="p">(),</span>
+                 <span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">is_leaf_method</span> <span class="o">=</span> <span class="n">get_default_is_leaf_method</span><span class="p">(),</span>
+                 <span class="n">label_encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="n">get_default_pick_exemplars_method</span><span class="p">(),</span>
+                 <span class="n">param_pool</span> <span class="o">=</span> <span class="n">get_all_distance_measures_param_pool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span> <span class="o">=</span> <span class="n">gain_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_stump_evaluations</span> <span class="o">=</span> <span class="n">num_stump_evaluations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="o">=</span> <span class="n">label_encoder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="n">pick_exemplars_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf_method</span> <span class="o">=</span> <span class="n">is_leaf_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span> <span class="o">=</span> <span class="n">param_pool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">dimension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="c1"># vars set in the fit method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stump</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ProximityTree.predict_proba"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityTree.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        classify instances</span>
+<span class="sd">        ----</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        instances : panda dataframe</span>
+<span class="sd">            instances of the dataset</span>
+<span class="sd">        input_checks : boolean</span>
+<span class="sd">            whether to verify the dataset (e.g. dimensions, etc)</span>
+<span class="sd">        ----</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----</span>
+<span class="sd">        predictions : 2d numpy array (instance by class)</span>
+<span class="sd">            array of prediction arrays. Each array has &lt;num classes&gt; values reflecting probability of each</span>
+<span class="sd">            class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check data</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">num_instances</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">distributions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># for each instance</span>
+        <span class="k">for</span> <span class="n">instance_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_instances</span><span class="p">):</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">instance_index</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">previous_tree</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="n">closest_exemplar_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="c1"># traverse the tree</span>
+            <span class="k">while</span> <span class="n">tree</span><span class="p">:</span>
+                <span class="c1"># find the distances to each exemplar</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">stump</span><span class="o">.</span><span class="n">exemplar_distance_inst</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+                <span class="c1"># find closest exemplar</span>
+                <span class="n">closest_exemplar_index</span> <span class="o">=</span> <span class="n">comparison</span><span class="o">.</span><span class="n">arg_min</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+                <span class="c1"># move to the tree corresponding to the closest exemplar</span>
+                <span class="n">previous_tree</span> <span class="o">=</span> <span class="n">tree</span>
+                <span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">closest_exemplar_index</span><span class="p">]</span>
+                <span class="c1"># if the tree is none then it is a leaf node</span>
+            <span class="c1"># jump back to the previous tree (one before none)</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">previous_tree</span>
+            <span class="c1"># get the class label for the closest exemplar at this node</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+            <span class="n">closest_exemplar_class_label</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">stump</span><span class="o">.</span><span class="n">exemplar_class_labels</span><span class="p">[</span><span class="n">closest_exemplar_index</span><span class="p">]</span>
+            <span class="c1"># increment the prediction at the closest exemplar&#39;s class label index</span>
+            <span class="n">prediction</span><span class="p">[</span><span class="n">closest_exemplar_class_label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># add to predictions</span>
+            <span class="n">distributions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="c1"># normalise the predictions</span>
+        <span class="n">distributions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">distributions</span><span class="p">)</span>
+        <span class="n">normalize</span><span class="p">(</span><span class="n">distributions</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="s1">&#39;l1&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distributions</span></div>
+
+    <span class="k">def</span> <span class="nf">_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        branch into further trees based upon proximity found in stump</span>
+<span class="sd">        ----</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        X : panda dataframe</span>
+<span class="sd">            instances of the dataset</span>
+<span class="sd">        y : numpy 1d array</span>
+<span class="sd">            class labels corresponding to each instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># find best stump (split of data)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_best_stump</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">num_branches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stump</span><span class="o">.</span><span class="n">branch_instances</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># providing max depth not exceeded</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">:</span>
+            <span class="c1"># for each branch (each exemplar instance)</span>
+            <span class="k">for</span> <span class="n">branch_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_branches</span><span class="p">):</span>
+                <span class="c1"># find class label for this branch, i.e. the class label of the exemplar instance</span>
+                <span class="n">branch_class_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stump</span><span class="o">.</span><span class="n">branch_class_labels</span><span class="p">[</span><span class="n">branch_index</span><span class="p">]</span>
+                <span class="c1"># if not a leaf node</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf_method</span><span class="p">(</span><span class="n">branch_class_labels</span><span class="p">):</span>
+                    <span class="c1"># construct a new tree (cloning parameters of this tree) to use on the branch&#39;s instances</span>
+                    <span class="n">tree</span> <span class="o">=</span> <span class="n">ProximityTree</span><span class="p">(</span>
+                            <span class="n">gain_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span><span class="p">,</span>
+                            <span class="n">num_stump_evaluations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_stump_evaluations</span><span class="p">,</span>
+                            <span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                            <span class="n">is_leaf_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf_method</span><span class="p">,</span>
+                            <span class="n">max_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">,</span>
+                            <span class="n">label_encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="p">,</span>
+                            <span class="n">param_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span><span class="p">,</span>
+                            <span class="n">dimension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">,</span>
+                            <span class="p">)</span>
+                    <span class="c1"># increment the level</span>
+                    <span class="n">tree</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="c1"># add tree to branches list</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># add none to branches list indicating a leaf node</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProximityTree.fit"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityTree.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        model a dataset using this proximity tree</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like or sparse matrix of shape = [n_samps, num_atts]</span>
+<span class="sd">            The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</span>
+<span class="sd">        y : array-like, shape = [n_samples] or [n_samples, n_outputs]</span>
+<span class="sd">            The class labels.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check data</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="c1"># check parameter values</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;max depth cannot be less than 0&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_stump_evaluations</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;r cannot be less than 1&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;gain method not callable&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;pick exemplars method not callable&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_leaf_method</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;is leaf method not callable&#39;</span><span class="p">)</span>
+        <span class="c1"># if param_pool is obtained using train instances</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span><span class="p">):</span>
+            <span class="c1"># call param_pool function giving train instances as parameter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="c1"># train label encoder if not already</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="p">,</span> <span class="s1">&#39;classes_&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="c1"># train the tree using a stacking top down decision tree induction algorithm. This constructs the tree in a</span>
+        <span class="c1"># iterative breadth first manner</span>
+        <span class="c1"># 3 queues, one for trees, one for instances, one for class labels. Indices correspond, e.g. tree_queue[4] is</span>
+        <span class="c1"># a tree which train on the instances at instances_queue[4] and said instance have class labels at</span>
+        <span class="c1"># class_labels_queue[4]</span>
+        <span class="c1"># add this tree to the queue with the full dataset and class labels</span>
+        <span class="n">tree_queue</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+        <span class="n">instances_queue</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span>
+        <span class="n">class_labels_queue</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">]</span>
+        <span class="c1"># while the queue is not empty</span>
+        <span class="k">while</span> <span class="n">tree_queue</span><span class="p">:</span>
+            <span class="c1"># get the next tree, instances and class labels in the queue</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">tree_queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">instances</span> <span class="o">=</span> <span class="n">instances_queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">class_labels</span> <span class="o">=</span> <span class="n">class_labels_queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="c1"># branch the tree</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">_branch</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+            <span class="c1"># for each branch</span>
+            <span class="k">for</span> <span class="n">branch_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">branches</span><span class="p">)):</span>
+                <span class="c1"># get the sub tree for that branch</span>
+                <span class="n">sub_tree</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">branch_index</span><span class="p">]</span>
+                <span class="c1"># if it is none then it is a leaf, i.e. do nothing</span>
+                <span class="k">if</span> <span class="n">sub_tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># otherwise add the sub tree to the tree queue for further branching</span>
+                    <span class="n">tree_queue</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sub_tree</span><span class="p">)</span>
+                    <span class="n">instances</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">stump</span><span class="o">.</span><span class="n">branch_instances</span><span class="p">[</span><span class="n">branch_index</span><span class="p">]</span>
+                    <span class="n">class_labels</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">stump</span><span class="o">.</span><span class="n">branch_class_labels</span><span class="p">[</span><span class="n">branch_index</span><span class="p">]</span>
+                    <span class="n">instances_queue</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">instances</span><span class="p">)</span>
+                    <span class="n">class_labels_queue</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">class_labels</span><span class="p">)</span>
+        <span class="c1"># queue empty so tree has branched into sub tree until contain only leaf nodes</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_rand_param_perm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get a random parameter permutation providing a distance measure and corresponding parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params : list of dicts</span>
+<span class="sd">            parameters in the same format as GridSearchCV from scikit-learn. example:</span>
+<span class="sd">            param_grid = [</span>
+<span class="sd">              {&#39;C&#39;: [1, 10, 100, 1000], &#39;kernel&#39;: [&#39;linear&#39;]},</span>
+<span class="sd">              {&#39;C&#39;: [1, 10, 100, 1000], &#39;gamma&#39;: [{&#39;C&#39;: [1, 10, 100, 1000], &#39;kernel&#39;: [&#39;linear&#39;]}], &#39;kernel&#39;: [&#39;rbf&#39;]},</span>
+<span class="sd">             ]</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        permutation : dict</span>
+<span class="sd">            distance measure and corresponding parameters in dictionary format</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span>
+        <span class="n">param_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">permutation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pick_param_permutation</span><span class="p">(</span><span class="n">param_pool</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">permutation</span>
+
+    <span class="k">def</span> <span class="nf">_get_best_stump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">stumps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_stump_evaluations</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">object</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_stump_evaluations</span><span class="p">):</span>
+            <span class="n">split</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pick_rand_stump</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">stumps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">split</span>
+        <span class="n">best_stump</span> <span class="o">=</span> <span class="n">comparison</span><span class="o">.</span><span class="n">best</span><span class="p">(</span><span class="n">stumps</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">gain</span> <span class="o">-</span> <span class="n">b</span><span class="o">.</span><span class="n">gain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">best_stump</span>
+
+    <span class="k">def</span> <span class="nf">_pick_rand_stump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">param_perm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rand_param_perm</span><span class="p">()</span>
+        <span class="n">stump</span> <span class="o">=</span> <span class="n">ProximityStump</span><span class="p">(</span><span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span><span class="p">,</span>
+                               <span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                               <span class="n">gain_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span><span class="p">,</span>
+                               <span class="n">label_encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="p">,</span>
+                               <span class="n">param_perm</span> <span class="o">=</span> <span class="n">param_perm</span><span class="p">)</span>
+        <span class="n">stump</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stump</span>
+
+    <span class="k">def</span> <span class="nf">_pick_param_permutation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_pool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        pick a parameter permutation given a list of dictionaries contain potential values OR a list of values OR a</span>
+<span class="sd">        distribution of values (a distribution must have the .rvs() function to sample values)</span>
+<span class="sd">        ----------</span>
+<span class="sd">        param_pool : list of dicts OR list OR distribution</span>
+<span class="sd">            parameters in the same format as GridSearchCV from scikit-learn. example:</span>
+<span class="sd">            param_grid = [</span>
+<span class="sd">              {&#39;C&#39;: [1, 10, 100, 1000], &#39;kernel&#39;: [&#39;linear&#39;]},</span>
+<span class="sd">              {&#39;C&#39;: [1, 10, 100, 1000], &#39;gamma&#39;: [{&#39;C&#39;: [1, 10, 100, 1000], &#39;kernel&#39;: [&#39;linear&#39;]}],</span>
+<span class="sd">              &#39;kernel&#39;: [&#39;rbf&#39;]},</span>
+<span class="sd">             ]</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        param_perm : dict</span>
+<span class="sd">            distance measure and corresponding parameters in dictionary format</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># construct empty permutation</span>
+        <span class="n">param_perm</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># for each parameter</span>
+        <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_values</span> <span class="ow">in</span> <span class="n">param_pool</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># if it is a list</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># randomly pick a value</span>
+                <span class="n">param_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">param_values</span><span class="p">)</span>
+                <span class="c1"># if the value is another dict then get a random parameter permutation from that dict (recursive over</span>
+                <span class="c1"># 2 funcs)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">param_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rand_param_perm</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span>
+            <span class="c1"># else if parameter is a distribution</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">param_values</span><span class="p">,</span> <span class="s1">&#39;rvs&#39;</span><span class="p">):</span>
+                <span class="c1"># sample from the distribution</span>
+                <span class="n">param_value</span> <span class="o">=</span> <span class="n">param_values</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># otherwise we don&#39;t know how to obtain a value from the parameter</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;unknown type of parameter pool&#39;</span><span class="p">)</span>
+            <span class="c1"># add parameter name and value to permutation</span>
+            <span class="n">param_perm</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_value</span>
+        <span class="k">return</span> <span class="n">param_perm</span></div>
+
+
+<div class="viewcode-block" id="ProximityForest"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityForest">[docs]</a><span class="k">class</span> <span class="nc">ProximityForest</span><span class="p">(</span><span class="n">BaseClassifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    proximity forest classifier using an ensemble proximity trees.</span>
+<span class="sd">    ----</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----</span>
+<span class="sd">    pick_exemplars_method : callable</span>
+<span class="sd">        Method to pick exemplars from a set of instances and class labels</span>
+<span class="sd">    param_pool : list of dicts</span>
+<span class="sd">        a list of dictionaries containing a distance measure and corresponding parameter sources (distribution or</span>
+<span class="sd">        predefined value)</span>
+<span class="sd">    debug : boolean</span>
+<span class="sd">        whether to print debug info</span>
+<span class="sd">    gain_method : callable</span>
+<span class="sd">        a method to calculate the gain of splits / stumps in trees</span>
+<span class="sd">    label_encoder : LabelEncoder</span>
+<span class="sd">        a label encoder, can be pre-populated</span>
+<span class="sd">    random_state : numpy RandomState</span>
+<span class="sd">        a random state for sampling random numbers</span>
+<span class="sd">    dimension : int</span>
+<span class="sd">        dimension of the dataset to use. Defaults to zero for univariate datasets.</span>
+<span class="sd">    num_stump_evaluations : int</span>
+<span class="sd">        a tree parameter dictating the number of proximity stumps to produce at each node. Each stump has a random</span>
+<span class="sd">        distance measure and distance measure parameter set. The stump with the best gain is used to split the data.</span>
+<span class="sd">    debug : boolean</span>
+<span class="sd">        whether to print debug info</span>
+<span class="sd">    num_trees : int</span>
+<span class="sd">        the number of trees to construct</span>
+<span class="sd">    is_leaf_method : callable</span>
+<span class="sd">        a method which takes a split of data and produces a boolean value indicating whether the tree should</span>
+<span class="sd">        continue splitting.</span>
+<span class="sd">    ----</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----</span>
+<span class="sd">    trees : list of ProximityTrees</span>
+<span class="sd">        ProximityTrees in this forest.</span>
+<span class="sd">    label_encoder : LabelEncoder</span>
+<span class="sd">        a label encoder, can be pre-populated</span>
+<span class="sd">    classes_ :</span>
+<span class="sd">        pointer to the label_encoder classes_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;George Oastler (linkedin.com/goastler)&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="n">get_default_pick_exemplars_method</span><span class="p">(),</span>
+                 <span class="n">gain_method</span> <span class="o">=</span> <span class="n">get_default_gain_method</span><span class="p">(),</span>
+                 <span class="n">num_stump_evaluations</span> <span class="o">=</span> <span class="n">get_default_num_stump_evaluations</span><span class="p">(),</span>
+                 <span class="n">dimension</span> <span class="o">=</span> <span class="n">get_default_dimension</span><span class="p">(),</span>
+                 <span class="n">num_trees</span> <span class="o">=</span> <span class="n">get_default_num_trees</span><span class="p">(),</span>
+                 <span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">is_leaf_method</span> <span class="o">=</span> <span class="n">get_default_is_leaf_method</span><span class="p">(),</span>
+                 <span class="n">max_depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                 <span class="n">label_encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">param_pool</span> <span class="o">=</span> <span class="n">get_all_distance_measures_param_pool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span> <span class="o">=</span> <span class="n">gain_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_stump_evaluations</span> <span class="o">=</span> <span class="n">num_stump_evaluations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="o">=</span> <span class="n">label_encoder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span> <span class="o">=</span> <span class="n">num_trees</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">dimension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf_method</span> <span class="o">=</span> <span class="n">is_leaf_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="n">pick_exemplars_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span> <span class="o">=</span> <span class="n">param_pool</span>
+        <span class="c1"># below set in fit method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ProximityForest.fit"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityForest.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        model a dataset using this proximity forest</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like or sparse matrix of shape = [n_samps, num_atts]</span>
+<span class="sd">            The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</span>
+<span class="sd">        y : array-like, shape = [n_samples] or [n_samples, n_outputs]</span>
+<span class="sd">            The class labels.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check data</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="c1"># check parameter values</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;number of trees cannot be less than 1&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="p">,</span> <span class="s1">&#39;classes_&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span><span class="p">):</span>
+            <span class="c1"># if param pool obtained via train instances then call it</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="c1"># init list of trees</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># for each tree</span>
+        <span class="k">for</span> <span class="n">tree_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_trees</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;constructing tree &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tree_index</span><span class="p">))</span>
+            <span class="c1"># build tree from forest parameters</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ProximityTree</span><span class="p">(</span>
+                    <span class="n">gain_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gain_method</span><span class="p">,</span>
+                    <span class="n">num_stump_evaluations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_stump_evaluations</span><span class="p">,</span>
+                    <span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                    <span class="n">is_leaf_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf_method</span><span class="p">,</span>
+                    <span class="n">max_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">,</span>
+                    <span class="n">label_encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="p">,</span>
+                    <span class="n">param_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_pool</span><span class="p">,</span>
+                    <span class="n">pick_exemplars_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pick_exemplars_method</span><span class="p">,</span>
+                    <span class="n">dimension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension</span><span class="p">,</span>  <span class="c1"># todo could randomise?</span>
+                    <span class="p">)</span>
+            <span class="c1"># build tree on dataset</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># append tree to tree list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ProximityForest.predict_proba"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.proximity.html#sktime.classifiers.proximity.ProximityForest.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        classify instances</span>
+<span class="sd">        ----</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----</span>
+<span class="sd">        X : panda dataframe</span>
+<span class="sd">            instances of the dataset</span>
+<span class="sd">        input_checks : boolean</span>
+<span class="sd">            whether to verify the dataset (e.g. dimensions, etc)</span>
+<span class="sd">        ----</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----</span>
+<span class="sd">        predictions : 2d numpy array (instance by class)</span>
+<span class="sd">            array of prediction arrays. Each array has &lt;num classes&gt; values reflecting probability of each</span>
+<span class="sd">            class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check data</span>
+        <span class="k">if</span> <span class="n">input_checks</span><span class="p">:</span>
+            <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="c1"># store sum of overall predictions. (majority vote)</span>
+        <span class="n">overall_predict_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">classes_</span><span class="p">)))</span>
+        <span class="c1"># for each tree</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="c1"># add the tree&#39;s predictions to the overall</span>
+            <span class="n">predict_probas</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">input_checks</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">overall_predict_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">overall_predict_probas</span><span class="p">,</span> <span class="n">predict_probas</span><span class="p">)</span>
+        <span class="c1"># normalise the overall predictions</span>
+        <span class="n">normalize</span><span class="p">(</span><span class="n">overall_predict_probas</span><span class="p">,</span> <span class="n">copy</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="s1">&#39;l1&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">overall_predict_probas</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

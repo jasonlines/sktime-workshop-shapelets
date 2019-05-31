@@ -1,0 +1,19 @@
+sktime.experiments package
+==========================
+
+.. automodule:: sktime.experiments
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.experiments.analysis
+   sktime.experiments.data
+   sktime.experiments.losses
+   sktime.experiments.orchestrator
+   sktime.experiments.scores
+

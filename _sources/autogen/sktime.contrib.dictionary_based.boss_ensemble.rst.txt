@@ -1,0 +1,7 @@
+sktime.contrib.dictionary\_based.boss\_ensemble module
+======================================================
+
+.. automodule:: sktime.contrib.dictionary_based.boss_ensemble
+    :members:
+    :undoc-members:
+    :show-inheritance:

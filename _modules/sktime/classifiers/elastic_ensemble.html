@@ -1,0 +1,480 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.classifiers.elastic_ensemble &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autogen/sktime.html">sktime package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sktime.classifiers.elastic_ensemble</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sktime.classifiers.elastic_ensemble</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="k">import</span> <span class="n">class_distribution</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">StratifiedShuffleSplit</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">RandomizedSearchCV</span><span class="p">,</span> <span class="n">LeaveOneOut</span><span class="p">,</span> <span class="n">cross_val_predict</span>
+<span class="kn">from</span> <span class="nn">sktime.transformers.series_to_series</span> <span class="k">import</span> <span class="n">DerivativeSlopeTransformer</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">.time_series_neighbors</span> <span class="k">import</span> <span class="n">KNeighborsTimeSeriesClassifier</span> <span class="k">as</span> <span class="n">KNNTSC</span>
+<span class="kn">from</span> <span class="nn">..distances.elastic_cython</span> <span class="k">import</span> <span class="n">dtw_distance</span> <span class="k">as</span> <span class="n">dtw_c</span><span class="p">,</span> <span class="n">wdtw_distance</span> <span class="k">as</span> <span class="n">wdtw_c</span><span class="p">,</span> <span class="n">ddtw_distance</span> <span class="k">as</span> <span class="n">ddtw_c</span><span class="p">,</span> \
+    <span class="n">wddtw_distance</span> <span class="k">as</span> <span class="n">wddtw_c</span><span class="p">,</span> <span class="n">lcss_distance</span> <span class="k">as</span> <span class="n">lcss_c</span><span class="p">,</span> <span class="n">erp_distance</span> <span class="k">as</span> <span class="n">erp_c</span><span class="p">,</span> <span class="n">msm_distance</span> <span class="k">as</span> <span class="n">msm_c</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ElasticEnsemble&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ElasticEnsemble"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.elastic_ensemble.html#sktime.classifiers.elastic_ensemble.ElasticEnsemble">[docs]</a><span class="k">class</span> <span class="nc">ElasticEnsemble</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The Elastic Ensemble</span>
+
+<span class="sd">    An ensemble of elastic nearest neighbor classifiers</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">distance_measures_to_include</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span>
+            <span class="n">proportion_of_param_options</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">proportion_train_in_param_finding</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">proportion_train_for_test</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">data_dimension_to_use</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">dim_to_use</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">distance_measures_to_include</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span> <span class="o">=</span> <span class="p">[</span><span class="n">dtw_c</span><span class="p">,</span> <span class="n">ddtw_c</span><span class="p">,</span> <span class="n">wdtw_c</span><span class="p">,</span> <span class="n">wddtw_c</span><span class="p">,</span> <span class="n">lcss_c</span><span class="p">,</span> <span class="n">erp_c</span><span class="p">,</span> <span class="n">msm_c</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span> <span class="o">=</span> <span class="n">distance_measures_to_include</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prop_train_in_param_finding</span> <span class="o">=</span> <span class="n">proportion_train_in_param_finding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prop_of_param_options</span> <span class="o">=</span> <span class="n">proportion_of_param_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prop_train_for_test</span> <span class="o">=</span> <span class="n">proportion_train_for_test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dimension_to_use</span> <span class="o">=</span> <span class="n">data_dimension_to_use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">random_seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span> <span class="o">=</span> <span class="n">dim_to_use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_preds_by_classifier</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constituent_build_times</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ElasticEnsemble.fit"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.elastic_ensemble.html#sktime.classifiers.elastic_ensemble.ElasticEnsemble.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># Derivative DTW (DDTW) uses the regular DTW algorithm on data that are transformed into derivatives.</span>
+        <span class="c1"># To increase the efficiency of DDTW we can pre-transform the data into derivatives, and then call the</span>
+        <span class="c1"># standard DTW algorithm on it, rather than transforming each series every time a distance calculation</span>
+        <span class="c1"># is made. Please note that using DDTW elsewhere will not benefit from this speed enhancement</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">ddtw_c</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">wddtw_c</span><span class="p">):</span>
+            <span class="n">der_X</span> <span class="o">=</span> <span class="n">DerivativeSlopeTransformer</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="c1"># reshape X for use with the efficient cython distance measures</span>
+            <span class="n">der_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">der_X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">der_X</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># reshape X for use with the efficient cython distance measures</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">]])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_preds_by_classifier</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">class_distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">rand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
+
+        <span class="c1"># The default EE uses all training instances for setting parameters, and 100 parameter options per</span>
+        <span class="c1"># elastic measure. The prop_train_in_param_finding and prop_of_param_options attributes of this class</span>
+        <span class="c1"># can be used to control this however, using less cases to optimise parameters on the training data</span>
+        <span class="c1"># and/or using less parameter options.</span>
+        <span class="c1">#</span>
+        <span class="c1"># For using less training instances the appropriate number of cases must be sampled from the data.</span>
+        <span class="c1"># This is achieved through the use of a deterministic StratifiedShuffleSplit</span>
+        <span class="c1">#</span>
+        <span class="c1"># For using less parameter options a RandomizedSearchCV is used in place of a GridSearchCV</span>
+
+        <span class="n">param_train_x</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">der_param_train_x</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">param_train_y</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># If using less cases for parameter optimisation, use the StratifiedShuffleSplit:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop_train_in_param_finding</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Restricting training cases for parameter optimisation: &quot;</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">sss</span> <span class="o">=</span> <span class="n">StratifiedShuffleSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">prop_train_in_param_finding</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rand</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">sss</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+                <span class="n">param_train_x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">train_index</span><span class="p">,:]</span>
+                <span class="n">param_train_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">train_index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">der_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">der_param_train_x</span> <span class="o">=</span> <span class="n">der_X</span><span class="p">[</span><span class="n">train_index</span><span class="p">,:]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;using &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">param_train_x</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot; training cases instead of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot; for parameter optimisation&quot;</span><span class="p">)</span>
+        <span class="c1"># else, use the full training data for optimising parameters</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using all training cases for parameter optimisation&quot;</span><span class="p">)</span>
+            <span class="n">param_train_x</span> <span class="o">=</span> <span class="n">X</span>
+            <span class="n">param_train_y</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="k">if</span> <span class="n">der_X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">der_param_train_x</span> <span class="o">=</span> <span class="n">der_X</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">constituent_build_times</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">prop_of_param_options</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; parameter options per measure&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">)):</span>
+            <span class="n">this_measure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span>
+
+            <span class="c1"># uses the appropriate training data as required (either full or smaller sample as per the StratifiedShuffleSplit)</span>
+            <span class="n">param_train_to_use</span> <span class="o">=</span> <span class="n">param_train_x</span>
+            <span class="n">full_train_to_use</span> <span class="o">=</span> <span class="n">X</span>
+            <span class="k">if</span> <span class="n">this_measure</span> <span class="ow">is</span> <span class="n">ddtw_c</span> <span class="ow">or</span> <span class="n">dm</span> <span class="ow">is</span> <span class="n">wddtw_c</span><span class="p">:</span>
+                <span class="n">param_train_to_use</span> <span class="o">=</span> <span class="n">der_param_train_x</span>
+                <span class="n">full_train_to_use</span> <span class="o">=</span> <span class="n">der_X</span>
+                <span class="k">if</span> <span class="n">this_measure</span> <span class="ow">is</span> <span class="n">ddtw_c</span><span class="p">:</span>
+                    <span class="n">this_measure</span> <span class="o">=</span> <span class="n">dtw_c</span>
+                <span class="k">elif</span> <span class="n">this_measure</span> <span class="ow">is</span> <span class="n">wddtw_c</span><span class="p">:</span>
+                    <span class="n">this_measure</span> <span class="o">=</span> <span class="n">wdtw_c</span>
+
+            <span class="n">start_build_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span> <span class="ow">is</span> <span class="n">ddtw_c</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span> <span class="ow">is</span> <span class="n">wddtw_c</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Currently evaluating &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; (implemented as &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">this_measure</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; with pre-transformed derivative data)&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Currently evaluating &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+            <span class="c1"># If 100 parameter options are being considered per measure, use a GridSearchCV</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop_of_param_options</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+
+                <span class="n">grid</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+                    <span class="n">estimator</span><span class="o">=</span> <span class="n">KNNTSC</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">this_measure</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;brute&quot;</span><span class="p">),</span>
+                    <span class="n">param_grid</span><span class="o">=</span><span class="n">ElasticEnsemble</span><span class="o">.</span><span class="n">_get_100_param_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">],</span> <span class="n">X</span><span class="p">),</span>
+                    <span class="n">cv</span><span class="o">=</span><span class="n">LeaveOneOut</span><span class="p">(),</span>
+                    <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
+                <span class="p">)</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">param_train_to_use</span><span class="p">,</span> <span class="n">param_train_y</span><span class="p">)</span>
+
+            <span class="c1"># Else, used RandomizedSearchCV to randomly sample parameter options for each measure</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">grid</span> <span class="o">=</span> <span class="n">RandomizedSearchCV</span><span class="p">(</span>
+                    <span class="n">estimator</span><span class="o">=</span><span class="n">KNNTSC</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">this_measure</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;brute&quot;</span><span class="p">),</span>
+                    <span class="n">param_distributions</span><span class="o">=</span><span class="n">ElasticEnsemble</span><span class="o">.</span><span class="n">_get_100_param_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">],</span> <span class="n">X</span><span class="p">),</span>
+                    <span class="n">cv</span><span class="o">=</span><span class="n">LeaveOneOut</span><span class="p">(),</span>
+                    <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
+                    <span class="n">n_iter</span><span class="o">=</span><span class="mi">100</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop_of_param_options</span><span class="p">,</span>
+                    <span class="n">random_state</span><span class="o">=</span><span class="n">rand</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
+                <span class="p">)</span>
+                <span class="n">grid</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">param_train_to_use</span><span class="p">,</span> <span class="n">param_train_y</span><span class="p">)</span>
+
+            <span class="c1"># once the best parameter option has been estimated on the training data, perform a final pass with this parameter option</span>
+            <span class="c1"># to get the individual predictions with cross_cal_predict (Note: optimisation potentially possible here if a GridSearchCV</span>
+            <span class="c1"># was used previously. TO-DO: determine how to extract predictions for the best param option from GridSearchCV)</span>
+            <span class="n">best_model</span> <span class="o">=</span> <span class="n">KNNTSC</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;brute&quot;</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">this_measure</span><span class="p">,</span> <span class="n">metric_params</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">best_params_</span><span class="p">[</span><span class="s1">&#39;metric_params&#39;</span><span class="p">])</span>
+            <span class="n">preds</span> <span class="o">=</span> <span class="n">cross_val_predict</span><span class="p">(</span><span class="n">best_model</span><span class="p">,</span> <span class="n">full_train_to_use</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">LeaveOneOut</span><span class="p">())</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">preds</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training accuracy for &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (with parameter setting: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">best_params_</span><span class="p">[</span><span class="s1">&#39;metric_params&#39;</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Finally, reset the classifier for this measure and parameter option, ready to be called for test classification</span>
+            <span class="n">best_model</span> <span class="o">=</span> <span class="n">KNNTSC</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;brute&quot;</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">this_measure</span><span class="p">,</span> <span class="n">metric_params</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">best_params_</span><span class="p">[</span><span class="s1">&#39;metric_params&#39;</span><span class="p">])</span>
+            <span class="n">best_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">full_train_to_use</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">end_build_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">constituent_build_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">end_build_time</span><span class="o">-</span><span class="n">start_build_time</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span> <span class="o">=</span> <span class="n">best_model</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span> <span class="o">=</span> <span class="n">acc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_preds_by_classifier</span><span class="p">[</span><span class="n">dm</span><span class="p">]</span> <span class="o">=</span> <span class="n">preds</span></div>
+
+<div class="viewcode-block" id="ElasticEnsemble.predict_proba"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.elastic_ensemble.html#sktime.classifiers.elastic_ensemble.ElasticEnsemble.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+
+        <span class="c1"># Derivative DTW (DDTW) uses the regular DTW algorithm on data that are transformed into derivatives.</span>
+        <span class="c1"># To increase the efficiency of DDTW we can pre-transform the data into derivatives, and then call the</span>
+        <span class="c1"># standard DTW algorithm on it, rather than transforming each series every time a distance calculation</span>
+        <span class="c1"># is made. Please note that using DDTW elsewhere will not benefit from this speed enhancement</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">ddtw_c</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">wddtw_c</span><span class="p">):</span>
+            <span class="n">der_X</span> <span class="o">=</span> <span class="n">DerivativeSlopeTransformer</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">der_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">der_X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">der_X</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># reshape X for use with the efficient cython distance measures</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim_to_use</span><span class="p">]])</span>
+
+        <span class="n">output_probas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">train_sum</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">ddtw_c</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">wddtw_c</span><span class="p">:</span>
+                <span class="n">test_X_to_use</span> <span class="o">=</span> <span class="n">der_X</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">test_X_to_use</span> <span class="o">=</span> <span class="n">X</span>
+            <span class="n">this_train_acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+            <span class="n">this_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_X_to_use</span><span class="p">),</span> <span class="n">this_train_acc</span><span class="p">)</span>
+            <span class="n">output_probas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_probas</span><span class="p">)</span>
+            <span class="n">train_sum</span> <span class="o">+=</span> <span class="n">this_train_acc</span>
+
+        <span class="n">output_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">output_probas</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">output_probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">output_probas</span><span class="p">,</span> <span class="n">train_sum</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_probas</span></div>
+
+<div class="viewcode-block" id="ElasticEnsemble.predict"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.elastic_ensemble.html#sktime.classifiers.elastic_ensemble.ElasticEnsemble.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">return_preds_and_probas</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">probas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="c1"># does derivative transform within (if required)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probas</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">return_preds_and_probas</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">preds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">preds</span><span class="p">,</span> <span class="n">probas</span></div>
+
+<div class="viewcode-block" id="ElasticEnsemble.write_constituent_train_files"><a class="viewcode-back" href="../../../autogen/sktime.classifiers.elastic_ensemble.html#sktime.classifiers.elastic_ensemble.ElasticEnsemble.write_constituent_train_files">[docs]</a>    <span class="k">def</span> <span class="nf">write_constituent_train_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file_path</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">actual_y</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">)):</span>
+            <span class="n">measure_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_measures</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">measure_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/Predictions/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">os</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># raises os.error if path already exists</span>
+
+            <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">measure_name</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/Predictions/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="s2">&quot;/trainFold&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+            <span class="c1"># the first line of the output file is in the form of:</span>
+            <span class="c1"># &lt;classifierName&gt;,&lt;datasetName&gt;,&lt;train/test&gt;</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">measure_name</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,train</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># the second line of the output is free form and classifier-specific; usually this will record info</span>
+            <span class="c1"># such as build time, paramater options used, any constituent model names for ensembles, etc.</span>
+            <span class="c1"># file.write(str(self.estimators_[c].best_params_[&#39;metric_params&#39;])+&quot;\n&quot;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prop_train_in_param_finding</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">metric_params</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;,build_time,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constituent_build_times</span><span class="p">[</span><span class="n">c</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;,prop_of_param_options,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prop_of_param_options</span><span class="p">)</span> <span class="o">+</span>
+                       <span class="s2">&quot;,prop_train_in_param_finding,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prop_train_in_param_finding</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># third line is training acc</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_accs_by_classifier</span><span class="p">[</span><span class="n">c</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">actual_y</span><span class="p">)):</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">actual_y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_preds_by_classifier</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">i</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># preds would go here once stored as part of fit</span>
+
+            <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_100_param_options</span><span class="p">(</span><span class="n">distance_measure</span><span class="p">,</span> <span class="n">train_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_dim_to_use</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">get_inclusive</span><span class="p">(</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">,</span> <span class="n">num_vals</span><span class="p">):</span>
+            <span class="n">inc</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_val</span> <span class="o">-</span> <span class="n">min_val</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_vals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span> <span class="o">+</span> <span class="n">inc</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">inc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">distance_measure</span> <span class="o">==</span> <span class="n">dtw_c</span> <span class="ow">or</span> <span class="n">distance_measure</span> <span class="o">==</span> <span class="n">ddtw_c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;metric_params&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">100</span><span class="p">}</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)]}</span>
+        <span class="k">elif</span> <span class="n">distance_measure</span> <span class="o">==</span> <span class="n">wdtw_c</span> <span class="ow">or</span> <span class="n">distance_measure</span> <span class="o">==</span> <span class="n">wddtw_c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;metric_params&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">100</span><span class="p">}</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)]}</span>
+        <span class="k">elif</span> <span class="n">distance_measure</span> <span class="o">==</span> <span class="n">lcss_c</span><span class="p">:</span>
+            <span class="n">train_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">train_x</span><span class="p">)</span>
+            <span class="n">epsilons</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="n">train_std</span><span class="o">*.</span><span class="mi">2</span><span class="p">,</span> <span class="n">train_std</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">deltas</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">4</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">train_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">deltas</span><span class="p">]</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="n">epsilons</span><span class="p">,</span> <span class="n">deltas</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;metric_params&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;epsilon&#39;</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="s1">&#39;delta&#39;</span><span class="p">:</span><span class="n">a</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">1</span><span class="p">]}</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">))]}</span>
+        <span class="k">elif</span> <span class="n">distance_measure</span> <span class="o">==</span> <span class="n">erp_c</span><span class="p">:</span>
+            <span class="n">train_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">train_x</span><span class="p">)</span>
+            <span class="n">band_sizes</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">g_vals</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="n">train_std</span> <span class="o">*</span> <span class="o">.</span><span class="mi">2</span><span class="p">,</span> <span class="n">train_std</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">b_and_g</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="n">band_sizes</span><span class="p">,</span> <span class="n">g_vals</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;metric_params&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;band_size&#39;</span><span class="p">:</span> <span class="n">b_and_g</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="n">b_and_g</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">1</span><span class="p">]}</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">b_and_g</span><span class="p">))]}</span>
+        <span class="k">elif</span> <span class="n">distance_measure</span> <span class="o">==</span> <span class="n">msm_c</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">26</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">26</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">get_inclusive</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">26</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;metric_params&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">}</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])]}</span>
+        <span class="c1"># elif distance_measure == twe_distance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;EE does not currently support: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">distance_measure</span><span class="p">))</span></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

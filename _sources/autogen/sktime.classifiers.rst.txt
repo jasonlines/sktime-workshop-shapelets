@@ -1,0 +1,19 @@
+sktime.classifiers package
+==========================
+
+.. automodule:: sktime.classifiers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.classifiers.base
+   sktime.classifiers.elastic_ensemble
+   sktime.classifiers.ensemble
+   sktime.classifiers.proximity
+   sktime.classifiers.time_series_neighbors
+

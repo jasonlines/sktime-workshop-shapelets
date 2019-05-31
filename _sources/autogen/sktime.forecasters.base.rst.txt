@@ -1,0 +1,7 @@
+sktime.forecasters.base module
+==============================
+
+.. automodule:: sktime.forecasters.base
+    :members:
+    :undoc-members:
+    :show-inheritance:

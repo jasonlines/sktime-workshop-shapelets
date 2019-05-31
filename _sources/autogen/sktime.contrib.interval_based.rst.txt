@@ -1,0 +1,15 @@
+sktime.contrib.interval\_based package
+======================================
+
+.. automodule:: sktime.contrib.interval_based
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.contrib.interval_based.tsf
+

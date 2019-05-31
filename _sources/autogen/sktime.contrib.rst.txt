@@ -1,0 +1,26 @@
+sktime.contrib package
+======================
+
+.. automodule:: sktime.contrib
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    sktime.contrib.dictionary_based
+    sktime.contrib.distance_based
+    sktime.contrib.frequency_based
+    sktime.contrib.interval_based
+
+Submodules
+----------
+
+.. toctree::
+
+   sktime.contrib.experiments
+   sktime.contrib.heterogeneous_ensembles
+

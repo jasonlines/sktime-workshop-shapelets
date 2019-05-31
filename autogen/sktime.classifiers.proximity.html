@@ -1,0 +1,911 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sktime.classifiers.proximity module &mdash; sktime  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sktime.classifiers.time_series_neighbors module" href="sktime.classifiers.time_series_neighbors.html" />
+    <link rel="prev" title="sktime.classifiers.ensemble module" href="sktime.classifiers.ensemble.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sktime
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="sktime.html">sktime package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sktime.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sktime.classifiers.html">sktime.classifiers package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="sktime.classifiers.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.contrib.html">sktime.contrib package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.datasets.html">sktime.datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.distances.html">sktime.distances package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.experiments.html">sktime.experiments package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.forecasters.html">sktime.forecasters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.regressors.html">sktime.regressors package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sktime.transformers.html">sktime.transformers package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sktime.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extension.html">Extension Guidelines</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sktime</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sktime.html">sktime package</a> &raquo;</li>
+        
+          <li><a href="sktime.classifiers.html">sktime.classifiers package</a> &raquo;</li>
+        
+      <li>sktime.classifiers.proximity module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/autogen/sktime.classifiers.proximity.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-sktime.classifiers.proximity">
+<span id="sktime-classifiers-proximity-module"></span><h1>sktime.classifiers.proximity module<a class="headerlink" href="#module-sktime.classifiers.proximity" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="sktime.classifiers.proximity.ProximityForest">
+<em class="property">class </em><code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">ProximityForest</code><span class="sig-paren">(</span><em>pick_exemplars_method=&lt;function pick_one_exemplar_per_class&gt;</em>, <em>gain_method=&lt;function gini&gt;</em>, <em>num_stump_evaluations=5</em>, <em>dimension=0</em>, <em>num_trees=100</em>, <em>random_state=None</em>, <em>is_leaf_method=&lt;function pure&gt;</em>, <em>max_depth=inf</em>, <em>label_encoder=None</em>, <em>debug=False</em>, <em>param_pool=&lt;function get_all_distance_measures_param_pool&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityForest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityForest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sktime.classifiers.base.html#sktime.classifiers.base.BaseClassifier" title="sktime.classifiers.base.BaseClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.classifiers.base.BaseClassifier</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pick_exemplars_method</strong> (<em>callable</em>) – Method to pick exemplars from a set of instances and class labels</p></li>
+<li><p><strong>param_pool</strong> (<em>list of dicts</em>) – a list of dictionaries containing a distance measure and corresponding parameter sources (distribution or
+predefined value)</p></li>
+<li><p><strong>debug</strong> (<em>boolean</em>) – whether to print debug info</p></li>
+<li><p><strong>gain_method</strong> (<em>callable</em>) – a method to calculate the gain of splits / stumps in trees</p></li>
+<li><p><strong>label_encoder</strong> (<em>LabelEncoder</em>) – a label encoder, can be pre-populated</p></li>
+<li><p><strong>random_state</strong> (<em>numpy RandomState</em>) – a random state for sampling random numbers</p></li>
+<li><p><strong>dimension</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – dimension of the dataset to use. Defaults to zero for univariate datasets.</p></li>
+<li><p><strong>num_stump_evaluations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – a tree parameter dictating the number of proximity stumps to produce at each node. Each stump has a random
+distance measure and distance measure parameter set. The stump with the best gain is used to split the data.</p></li>
+<li><p><strong>debug</strong> – whether to print debug info</p></li>
+<li><p><strong>num_trees</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of trees to construct</p></li>
+<li><p><strong>is_leaf_method</strong> (<em>callable</em>) – a method which takes a split of data and produces a boolean value indicating whether the tree should
+continue splitting.</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityForest.trees">
+<code class="descname">trees</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityForest.trees" title="Permalink to this definition">¶</a></dt>
+<dd><p>ProximityTrees in this forest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of ProximityTrees</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityForest.label_encoder">
+<code class="descname">label_encoder</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityForest.label_encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>a label encoder, can be pre-populated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>LabelEncoder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityForest.classes_">
+<code class="descname">classes_</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityForest.classes_" title="Permalink to this definition">¶</a></dt>
+<dd><p>pointer to the label_encoder <a href="#id1"><span class="problematic" id="id2">classes_</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityForest.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityForest.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityForest.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>X<span class="classifier">array-like or sparse matrix of shape = [n_samps, num_atts]</span></dt><dd><p>The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</p>
+</dd>
+<dt>y<span class="classifier">array-like, shape = [n_samples] or [n_samples, n_outputs]</span></dt><dd><p>The class labels.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>self</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityForest.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityForest.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityForest.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>panda dataframe</em>) – instances of the dataset</p></li>
+<li><p><strong>input_checks</strong> (<em>boolean</em>) – whether to verify the dataset (e.g. dimensions, etc)</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>predictions</strong> – array of prediction arrays. Each array has &lt;num classes&gt; values reflecting probability of each
+class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy array (instance by class)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.classifiers.proximity.ProximityStump">
+<em class="property">class </em><code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">ProximityStump</code><span class="sig-paren">(</span><em>pick_exemplars_method=&lt;function pick_one_exemplar_per_class&gt;</em>, <em>param_perm=&lt;function get_default_param_perm&gt;</em>, <em>gain_method=&lt;function gini&gt;</em>, <em>label_encoder=None</em>, <em>dimension=0</em>, <em>random_state=None</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityStump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sktime.classifiers.base.html#sktime.classifiers.base.BaseClassifier" title="sktime.classifiers.base.BaseClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.classifiers.base.BaseClassifier</span></code></a></p>
+<p>proximity tree classifier of depth 1 - in other words, a k=1 nearest neighbour classifier with neighbourhood limited
+to x exemplar instances
+—-
+:param pick_exemplars_method: Method to pick exemplars from a set of instances and class labels
+:type pick_exemplars_method: callable
+:param param_perm: a dictionary containing a distance measure and corresponding parameter
+:type param_perm: dict
+:param gain_method: a method to calculate the gain of this split / stump
+:type gain_method: callable
+:param label_encoder: a label encoder, can be pre-populated
+:type label_encoder: LabelEncoder
+:param random_state: a random state for sampling random numbers
+:type random_state: numpy RandomState
+:param debug: whether to print debug info
+:type debug: boolean
+:param dimension: dimension of the dataset to use. Defaults to zero for univariate datasets.
+:type dimension: int
+:param —-:</p>
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.exemplar_instances">
+<code class="descname">exemplar_instances</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.exemplar_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>the chosen exemplar instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>panda dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.exemplar_class_labels">
+<code class="descname">exemplar_class_labels</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.exemplar_class_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>array of class labels corresponding to the exemplar instances
+the exemplar instances class labels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy 1d array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.remaining_instances">
+<code class="descname">remaining_instances</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.remaining_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>the remaining instances after exemplars have been removed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>panda dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.remaining_class_labels">
+<code class="descname">remaining_class_labels</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.remaining_class_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>array of class labels corresponding to the exemplar instances
+the remaining instances class labels after picking exemplars</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy 1d array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.branch_instances">
+<code class="descname">branch_instances</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.branch_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of dataframes of instances, one for each child of this stump. I.e. if a stump splits into two children,
+there will be a list of dataframes of length two. branch_instance[0] will contain all train instances
+closest to exemplar 0, branch_instances[1] contains all train instances closest to exemplar 1,
+etc. Exemplars are in the exemplar_instances variable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of panda dataframes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.branch_class_labels">
+<code class="descname">branch_class_labels</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.branch_class_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>similar to branch_instances, but contains the class labels of the instances closest to each exemplar</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of numpy 1d arrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.distance_measure_param_perm">
+<code class="descname">distance_measure_param_perm</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.distance_measure_param_perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>parameters to pass to the distance measure method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.distance_measure">
+<code class="descname">distance_measure</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.distance_measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>the distance measure to use for measure similarity between instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.gain">
+<code class="descname">gain</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.gain" title="Permalink to this definition">¶</a></dt>
+<dd><p>the gain of this stump</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.label_encoder">
+<code class="descname">label_encoder</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.label_encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>a label encoder, can be pre-populated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>LabelEncoder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityStump.classes_">
+<code class="descname">classes_</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.classes_" title="Permalink to this definition">¶</a></dt>
+<dd><p>pointer to the label_encoder <a href="#id3"><span class="problematic" id="id4">classes_</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityStump.exemplar_distance_inst">
+<code class="descname">exemplar_distance_inst</code><span class="sig-paren">(</span><em>instance</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityStump.exemplar_distance_inst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.exemplar_distance_inst" title="Permalink to this definition">¶</a></dt>
+<dd><p>find the distance from the given instance to each exemplar instance. Note this returns distance + 1 for
+efficiency in other methods.
+—-
+:param instance: instance of the dataset
+:type instance: panda dataframe
+:param input_checks: whether to verify the dataset (e.g. dimensions, etc)
+:type input_checks: boolean
+:param —-:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>distances</strong> – list of distance corresponding to each exemplar instance</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityStump.exemplar_distances">
+<code class="descname">exemplar_distances</code><span class="sig-paren">(</span><em>X</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityStump.exemplar_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.exemplar_distances" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>panda dataframe</em>) – instances of the dataset</p></li>
+<li><p><strong>input_checks</strong> (<em>boolean</em>) – whether to verify the dataset (e.g. dimensions, etc)</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>distances</strong> – list of distance corresponding to each exemplar instance (instances by distances)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityStump.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityStump.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>X<span class="classifier">array-like or sparse matrix of shape = [n_samps, num_atts]</span></dt><dd><p>The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</p>
+</dd>
+<dt>y<span class="classifier">array-like, shape = [n_samples] or [n_samples, n_outputs]</span></dt><dd><p>The class labels.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>self</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="sktime.classifiers.proximity.ProximityStump.get_distance_measure_key">
+<em class="property">static </em><code class="descname">get_distance_measure_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityStump.get_distance_measure_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.get_distance_measure_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the key for the distance measure. This key is required for picking the distance measure out of the
+param_perm constructor parameter.
+—-
+:returns: <strong>key</strong> – key for the distance measure for the param_perm dict
+:rtype: string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityStump.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityStump.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityStump.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>panda dataframe</em>) – instances of the dataset</p></li>
+<li><p><strong>input_checks</strong> (<em>boolean</em>) – whether to verify the dataset (e.g. dimensions, etc)</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>predictions</strong> – array of prediction arrays. Each array has &lt;num classes&gt; values reflecting probability of each class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy array (instance by class)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sktime.classifiers.proximity.ProximityTree">
+<em class="property">class </em><code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">ProximityTree</code><span class="sig-paren">(</span><em>gain_method=&lt;function gini&gt;</em>, <em>num_stump_evaluations=5</em>, <em>max_depth=inf</em>, <em>dimension=0</em>, <em>random_state=None</em>, <em>debug=False</em>, <em>is_leaf_method=&lt;function pure&gt;</em>, <em>label_encoder=None</em>, <em>pick_exemplars_method=&lt;function pick_one_exemplar_per_class&gt;</em>, <em>param_pool=&lt;function get_all_distance_measures_param_pool&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sktime.classifiers.base.html#sktime.classifiers.base.BaseClassifier" title="sktime.classifiers.base.BaseClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">sktime.classifiers.base.BaseClassifier</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pick_exemplars_method</strong> (<em>callable</em>) – Method to pick exemplars from a set of instances and class labels</p></li>
+<li><p><strong>param_pool</strong> (<em>list of dicts</em>) – a list of dictionaries containing a distance measure and corresponding parameter sources (distribution or
+predefined value)</p></li>
+<li><p><strong>gain_method</strong> (<em>callable</em>) – a method to calculate the gain of this split / stump</p></li>
+<li><p><strong>label_encoder</strong> (<em>LabelEncoder</em>) – a label encoder, can be pre-populated</p></li>
+<li><p><strong>random_state</strong> (<em>numpy RandomState</em>) – a random state for sampling random numbers</p></li>
+<li><p><strong>dimension</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – dimension of the dataset to use. Defaults to zero for univariate datasets.</p></li>
+<li><p><strong>debug</strong> (<em>boolean</em>) – whether to print debug info</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of proximity stumps to produce at each node. Each stump has a random distance measure and distance
+measure parameter set. The stump with the best gain is used to split the data.</p></li>
+<li><p><strong>is_leaf_method</strong> (<em>callable</em>) – a method which takes a split of data and produces a boolean value indicating whether the tree should continue
+splitting.</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityTree.level">
+<code class="descname">level</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree.level" title="Permalink to this definition">¶</a></dt>
+<dd><p>the level of the current tree. Each tree is made up of a collection of trees, one for each branch. Each one
+of these trees are level + 1 deep. The level begins on 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityTree.branches">
+<code class="descname">branches</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree.branches" title="Permalink to this definition">¶</a></dt>
+<dd><p>trees corresponding to each branch output of the proximity stump.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array of trees</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityTree.stump">
+<code class="descname">stump</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree.stump" title="Permalink to this definition">¶</a></dt>
+<dd><p>the proximity stump used to split the data at this node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sktime.classifiers.proximity.ProximityStump" title="sktime.classifiers.proximity.ProximityStump">ProximityStump</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityTree.label_encoder">
+<code class="descname">label_encoder</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree.label_encoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>a label encoder, can be pre-populated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>LabelEncoder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="sktime.classifiers.proximity.ProximityTree.classes_">
+<code class="descname">classes_</code><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree.classes_" title="Permalink to this definition">¶</a></dt>
+<dd><p>pointer to the label_encoder <a href="#id5"><span class="problematic" id="id6">classes_</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityTree.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityTree.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>X<span class="classifier">array-like or sparse matrix of shape = [n_samps, num_atts]</span></dt><dd><p>The training input samples.  If a Pandas data frame is passed, the column _dim_to_use is extracted</p>
+</dd>
+<dt>y<span class="classifier">array-like, shape = [n_samples] or [n_samples, n_outputs]</span></dt><dd><p>The class labels.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>self</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sktime.classifiers.proximity.ProximityTree.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em>, <em>input_checks=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#ProximityTree.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.ProximityTree.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instances</strong> (<em>panda dataframe</em>) – instances of the dataset</p></li>
+<li><p><strong>input_checks</strong> (<em>boolean</em>) – whether to verify the dataset (e.g. dimensions, etc)</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>predictions</strong> – array of prediction arrays. Each array has &lt;num classes&gt; values reflecting probability of each
+class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy array (instance by class)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.chi_squared">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">chi_squared</code><span class="sig-paren">(</span><em>parent_class_labels</em>, <em>children_class_labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#chi_squared"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.chi_squared" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_all_distance_measures_param_pool">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_all_distance_measures_param_pool</code><span class="sig-paren">(</span><em>X</em>, <em>dimension</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_all_distance_measures_param_pool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_all_distance_measures_param_pool" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>panda dataframe</em>) – instances representing a dataset</p></li>
+<li><p><strong>dimension</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – index of dimension to use</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>param_pool</strong> – list of dictionaries to pick distance measures and corresponding parameters from. This should be in the same
+format as sklearn’s GridSearchCV parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_default_dimension">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_default_dimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_default_dimension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_default_dimension" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – default dimension of a dataset to use</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_default_gain_method">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_default_gain_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_default_gain_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_default_gain_method" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – default gain method</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_default_is_leaf_method">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_default_is_leaf_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_default_is_leaf_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_default_is_leaf_method" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – default method to check whether a tree node is a leaf or not</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_default_num_stump_evaluations">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_default_num_stump_evaluations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_default_num_stump_evaluations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_default_num_stump_evaluations" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – default number of splits to examine</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_default_num_trees">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_default_num_trees</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_default_num_trees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_default_num_trees" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – default number of trees</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_default_param_perm">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_default_param_perm</code><span class="sig-paren">(</span><em>X</em>, <em>dimension</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_default_param_perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_default_param_perm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>panda dataframe</em>) – instances representing a dataset</p></li>
+<li><p><strong>dimension</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – index of dimension to use</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>param_perm</strong> – a dictionary of a distance measure (dtw) and corresponding parameters (window size)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.get_default_pick_exemplars_method">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">get_default_pick_exemplars_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#get_default_pick_exemplars_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.get_default_pick_exemplars_method" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>result</strong> – default method to pick exemplars from a dataset (set of instances and class labels)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.gini">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">gini</code><span class="sig-paren">(</span><em>parent_class_labels</em>, <em>children_class_labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#gini"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.gini" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_class_labels</strong> (<em>1d numpy array</em>) – array of class labels at parent</p></li>
+<li><p><strong>children_class_labels</strong> (<em>list of 1d numpy array</em>) – list of array of class labels, one array per child</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>score</strong> – gini score of the split from parent class labels to children. Note the gini score is scaled to be between 0
+and 1. 1 == pure, 0 == not pure</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.gini_node">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">gini_node</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#gini_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.gini_node" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>1d numpy array</em>) – array of class labels</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>score</strong> – gini score for the set of class labels (i.e. how pure they are). 1 == pure, 0 == not pure</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.information_gain">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">information_gain</code><span class="sig-paren">(</span><em>parent_class_labels</em>, <em>children_class_labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#information_gain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.information_gain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.pick_one_exemplar_per_class">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">pick_one_exemplar_per_class</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>random_state</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#pick_one_exemplar_per_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.pick_one_exemplar_per_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>panda dataframe</em>) – instances representing a dataset</p></li>
+<li><p><strong>y</strong> (<em>1d numpy array</em>) – array of class labels, one for each instance in the instances panda dataframe parameter</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>chosen_instances</strong> (<em>panda dataframe</em>) – the chosen exemplar instances</p></li>
+<li><p><strong>chosen_class_labels</strong> (<em>numpy 1d array</em>) – array of class labels corresponding to the exemplar instances
+the exemplar instances class labels</p></li>
+<li><p><strong>remaining_instances</strong> (<em>panda dataframe</em>) – the remaining instances after exemplars have been removed</p></li>
+<li><p><strong>remaining_class_labels</strong> (<em>numpy 1d array</em>) – array of class labels corresponding to the exemplar instances
+the remaining instances class labels after picking exemplars</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sktime.classifiers.proximity.pure">
+<code class="descclassname">sktime.classifiers.proximity.</code><code class="descname">pure</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sktime/classifiers/proximity.html#pure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sktime.classifiers.proximity.pure" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>1d numpy array</em>) – array of class labels</p></li>
+<li><p><strong>----</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>result</strong> – whether the set of class labels is pure</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sktime.classifiers.time_series_neighbors.html" class="btn btn-neutral float-right" title="sktime.classifiers.time_series_neighbors module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sktime.classifiers.ensemble.html" class="btn btn-neutral float-left" title="sktime.classifiers.ensemble module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, The Alan Turing Institute
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

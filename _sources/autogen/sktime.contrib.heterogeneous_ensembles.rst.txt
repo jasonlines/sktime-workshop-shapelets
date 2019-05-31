@@ -1,0 +1,7 @@
+sktime.contrib.heterogeneous\_ensembles module
+==============================================
+
+.. automodule:: sktime.contrib.heterogeneous_ensembles
+    :members:
+    :undoc-members:
+    :show-inheritance:
